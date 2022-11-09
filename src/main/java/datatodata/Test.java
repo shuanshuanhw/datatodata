@@ -66,7 +66,7 @@ public class Test {
 			queryOverdueBooks.setDays(overdueDays);
 			queryOverdueBooks.setSize(pageSize);
 
-			if (libids != null && libids.length > 0) {
+			if (libids.length > 0) {
 				for (String libid : libids) {
 					page = 0;
 					queryOverdueBooks.setPage(page);
@@ -131,7 +131,7 @@ public class Test {
 								message = SendSms.SendSms(phone, sh_txtx);
 								System.out.println(phone+" : "+message);
 								}
-								
+
 								pst.setString(1, BarCode);
 								pst.setString(2, Callno);
 								pst.setString(3, LoanDate);
@@ -146,10 +146,10 @@ public class Test {
 								pst.setString(12, readerName);
 								pst.executeUpdate();
 							}
-							
+
 
 						}
-						
+
 					}
 				}SendSms.SendSms("15007572525", new Date()+" sms already send!");
 			}
@@ -183,7 +183,7 @@ public class Test {
 	}
 
 	public static void main(String args[])
-			throws UnsupportedEncodingException, IOException, ClassNotFoundException, SQLException {
+			throws IOException, ClassNotFoundException, SQLException {
 
 		Test test = new Test();
 		test.testneww();
