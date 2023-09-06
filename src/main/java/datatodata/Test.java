@@ -28,11 +28,12 @@ public class Test {
 
 		Connection conn = null;
 		PreparedStatement pst = null;
-		Class.forName("com.mysql.jdbc.Driver");// Ö¸¶¨Á¬½ÓÀàÐÍ
+		Class.forName("com.mysql.cj.jdbc.Driver");// æŒ‡å®šè¿žæŽ¥ç±»åž‹
+//		Class.forName("com.mysql.jdbc.Driver");// æŒ‡å®šè¿žæŽ¥ç±»åž‹
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
-				"651392qQ");// »ñÈ¡Á¬½Ó
+				"651392qQ");//  èŽ·å–è¿žæŽ¥
 		String sql = "INSERT INTO sms(BarCode,Callno,LoanDate,Phone,ReturnTime,Title,LoanCount,Cardno,readerInfo,readerInfoResponse,readerInfo2,readerName) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
-		pst = conn.prepareStatement(sql);// ×¼±¸Ö´ÐÐÓï¾ä
+		pst = conn.prepareStatement(sql);// å‡†å¤‡æ‰§è¡Œè¯­å¥
 
 		String readerName = "";
 		String cardno = "";
@@ -45,22 +46,24 @@ public class Test {
 		String LoanCount = "";
 		
 		String sh_txtx="";
-		String message = "Î´·¢ËÍ";
+		String message = "æœªå‘é€";
 		ServiceServerStub serverStub = new ServiceServerStub(
 				"http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
 		try {
-// µ÷ÓÃ²éÑ¯¹ýÆÚÎÄÏ×½Ó¿Ú
-//²éÑ¯¶ÁÕßÐÅÏ¢
+// è°ƒç”¨æŸ¥è¯¢è¿‡æœŸæ–‡çŒ®æŽ¥å£
+//æŸ¥è¯¢è¯»è€…ä¿¡æ¯
 			QueryReaderInfo readerInfo = new QueryReaderInfo();
 			readerInfo.setIdentifier("1000000109");
 			QueryReaderInfoResponse readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
 			ReaderInfo readerInfo2 = readerInfoResponse.get_return();
+			System.out.println(readerInfo2);
+			// æ˜¾ç¤ºè¯»è€…ä¿¡æ¯
 
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
-					"SD011", "SD012", "DX001" }; // ¶à¸ö¹Ý¾ÍÐ´¶à¸ö Èç{"FS001","FS002","FS003"}
-			int overdueDays = -5; // ¹ýÆÚÌìÊý²ÎÊý
-			int page = 1; // Ò³Âë
-			int pageSize = 50; // Ã¿Ò³ÇëÇóÊýÁ¿
+					"SD011", "SD012", "DX001" }; // å›¾ä¹¦é¦†ä»£ç 
+			int overdueDays = -5; // è¿‡æœŸå¤©æ•°å‚æ•°
+			int page = 1; // é¡µç 
+			int pageSize = 50; // æ¯é¡µè¯·æ±‚æ•°é‡
 			QueryOverdueBooks queryOverdueBooks = new QueryOverdueBooks();
 
 			queryOverdueBooks.setDays(overdueDays);
@@ -72,18 +75,18 @@ public class Test {
 					queryOverdueBooks.setPage(page);
 					queryOverdueBooks.setLibcode(libid);
 
-					// µ÷ÓÃ½Ó¿Ú
+					// è°ƒç”¨æŽ¥å£
 					QueryOverdueBooksResponse queryOverdueBooksResponse = serverStub
 							.queryOverdueBooks(queryOverdueBooks);
-					// »ñÈ¡·µ»Ø
+					// èŽ·å–è¿”å›ž
 					OverdueResult overdueResult = queryOverdueBooksResponse.get_return();
 
 					if (overdueResult == null) {
 						continue;
 					}
 					int total = Integer.valueOf(overdueResult.getCount());
-					System.out.println("×ÜÊý£º" + overdueResult.getCount());// ×ÜÊý
-					// Í¼ÊéÁÐ±í
+					System.out.println("æ€»æ•°ï¼š" + overdueResult.getCount());// æ€»æ•°
+					// å›¾ä¹¦åˆ—è¡¨
 					OverdueBooks[] overdueBooks = overdueResult.getOverdueBooks();
 					if (total > 0) {
 						int totalPage = (total + pageSize - 1) / pageSize;
@@ -91,13 +94,14 @@ public class Test {
 						for (int i = page + 1; i <= totalPage; i++) {
 							queryOverdueBooks.setPage(i);
 							queryOverdueBooksResponse = serverStub.queryOverdueBooks(queryOverdueBooks);
-							// »ñÈ¡·µ»Ø
+							// èŽ·å–è¿”å›ž
 							overdueResult = queryOverdueBooksResponse.get_return();
-							// Í¼ÊéÁÐ±í
+							// å›¾ä¹¦åˆ—è¡¨
 							overdueBooks = overdueResult.getOverdueBooks();
 
 							for (OverdueBooks overdueBooks2 : overdueBooks) {
-								BarCode = overdueBooks2.getBarCode();// Êé±ê
+
+								BarCode = overdueBooks2.getBarCode();// ä¹¦æ ‡
 								Callno = overdueBooks2.getCallno();
 								LoanDate = overdueBooks2.getLoanDate();
 //overdueBooks2.getOrgLib();
@@ -109,8 +113,12 @@ public class Test {
 								//readerInfo = overdueBooks2.setIdentifier(cardno);
 								//readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
 								//readerInfo2 = readerInfoResponse.get_return();
+								readerInfo.setIdentifier(cardno);
+								readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
+								readerInfo2 = readerInfoResponse.get_return();
 								readerName = readerInfo2.getPatronName();
 
+								System.out.println(readerName);
 								if(BarCode==null)BarCode="";
 								if(Callno==null)Callno="";
 								if(LoanDate==null)LoanDate="";
@@ -120,11 +128,12 @@ public class Test {
 								if(cardno==null)cardno="";
 								if(readerName==null)readerName="";
 
-								sh_txtx="×ð¾´µÄ "+readerName+" ¶ÁÕß£¬ÄúÓÚ "+LoanDate+" Ëù½èÊé¿¯ "+Title+" ½«ÓÚ "
-										  +ReturnTime+" µ½ÆÚ£¬Çë¼°Ê±¹é»¹¡£×ÉÑ¯µç»°£º22808600,Èç¹ûÊéÒÑ¹é»¹£¬ÇëºöÂÔÐ©¶ÌÐÅ";
+								sh_txtx="å°Šæ•¬çš„ "+readerName+" è¯»è€…ï¼Œæ‚¨äºŽ "+LoanDate+" æ‰€å€Ÿä¹¦åˆŠ "+Title+" å°†äºŽ "
+										  +ReturnTime+" åˆ°æœŸï¼Œè¯·åŠæ—¶å½’è¿˜ã€‚å’¨è¯¢ç”µè¯ï¼š22808600,å¦‚æžœä¹¦å·²å½’è¿˜ï¼Œè¯·å¿½ç•¥äº›çŸ­ä¿¡";
+								System.out.println(sh_txtx);
 								if(phone==null)phone="";
 								if(phone.equals("")||phone.length()!=11)
-									System.out.println("³öÏÖ ²»ºÏ¸ñphone");
+									System.out.println("å‡ºçŽ° ä¸åˆæ ¼phone");
 								else
 								{
 								//System.out.println("success"+phone);
@@ -156,25 +165,25 @@ public class Test {
 			pst.close();
 			conn.close();
 		} catch (Exception e) {
-			System.out.print("Ñ­»·Ìå³öÏÖ¿ÕÒì³££º"+e.toString());
+			System.out.print("å¾ªçŽ¯ä½“å‡ºçŽ°ç©ºå¼‚å¸¸ï¼š"+e.toString());
 		}
 	}
 
 	public static Properties getProperties() {
 		try {
-			// »ñÈ¡ÅäÖÃÎÄ¼þ£¬×ª»»³ÉÁ÷
+			// èŽ·å–é…ç½®æ–‡ä»¶ï¼Œè½¬æ¢æˆæµ
 			InputStream in = null;
 			try {
-				// ¿ª·¢»·¾³¶ÁÈ¡
+				// å¼€å‘çŽ¯å¢ƒè¯»å–
 				URL url = Test.class.getClassLoader().getResource("datasource.properties");
 				File file = new File(url.getFile());
 				in = new FileInputStream(file);
 			} catch (Exception e) {
 
 			}
-			// ´´½¨properties¶ÔÏó
+			// åˆ›å»ºpropertieså¯¹è±¡
 			Properties properties = new Properties();
-			// ¼ÓÔØÁ÷
+			// åŠ è½½æµ
 			properties.load(in);
 			return properties;
 		} catch (Exception e) {
@@ -185,6 +194,7 @@ public class Test {
 	public static void main(String args[])
 			throws IOException, ClassNotFoundException, SQLException {
 
+		System.out.println("å¼€å§‹æ‰§è¡Œ");
 		Test test = new Test();
 		test.testneww();
 
