@@ -160,7 +160,10 @@ public class Test {
 						}
 
 					}
-				}SendSms.SendSms("15007572525", new Date()+" sms already send!");
+				}
+				System.out.println("success");
+				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
+				System.out.println("管理员是否收到短信"+s);
 			}
 			pst.close();
 			conn.close();
