@@ -3,8 +3,20 @@
   <groupId>com.sdlib.test</groupId>
   <artifactId>datatodata</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
-  <dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
   <!-- MySql -->
       <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
       <dependency>
@@ -12,7 +24,11 @@
           <artifactId>mysql-connector-java</artifactId>
           <version>8.0.28</version>
       </dependency>
-
+      <dependency>
+          <groupId>cn.hutool</groupId>
+          <artifactId>hutool-all</artifactId>
+          <version>5.8.22</version>
+      </dependency>
 <!--
   <dependency>
     <groupId>org.apache.httpcomponents</groupId>

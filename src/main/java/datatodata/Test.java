@@ -10,12 +10,15 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import com.ilas.entity.xsd.OverdueBooks;
 import com.ilas.entity.xsd.OverdueResult;
+//import com.ilas.entity.xsd.ReaderInfo;
 import com.ilas.entity.xsd.ReaderInfo;
 import com.ilas.webservice.services.impl.QueryOverdueBooks;
 import com.ilas.webservice.services.impl.QueryOverdueBooksResponse;
 import com.ilas.webservice.services.impl.QueryReaderInfo;
 import com.ilas.webservice.services.impl.QueryReaderInfoResponse;
 import com.ilas.webservice.services.impl.ServiceServerStub;
+import datatodata.entity.ilas.IlasOverBook;
+import datatodata.entity.ilas.IlasUser;
 
 import java.util.*;
 import java.util.Date;
@@ -36,139 +39,113 @@ public class Test {
 		pst = conn.prepareStatement(sql);// 准备执行语句
 
 		String readerName = "";
-		String cardno = "";
 		String phone = "";
-		String BarCode = "";
-		String Title = "";
-		String Callno = "";
-		String LoanDate = "";
-		String ReturnTime = "";
-		String LoanCount = "";
-		
 		String sh_txtx="";
 		String message = "未发送";
 		ServiceServerStub serverStub = new ServiceServerStub(
 				"http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
 		try {
-// 调用查询过期文献接口
-//查询读者信息
-			QueryReaderInfo readerInfo = new QueryReaderInfo();
-			readerInfo.setIdentifier("1000000109");
-			QueryReaderInfoResponse readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
-			ReaderInfo readerInfo2 = readerInfoResponse.get_return();
-			System.out.println(readerInfo2);
-			// 显示读者信息
-
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
 					"SD011", "SD012", "DX001" }; // 图书馆代码
 			int overdueDays = -5; // 过期天数参数
-			int page = 1; // 页码
+			int page = 0; // 页码
 			int pageSize = 50; // 每页请求数量
-			QueryOverdueBooks queryOverdueBooks = new QueryOverdueBooks();
 
-			queryOverdueBooks.setDays(overdueDays);
-			queryOverdueBooks.setSize(pageSize);
+			for (String libid : libids) {
+				page = 0;
+				List<IlasOverBook> tempBooks = null;
+				List<IlasOverBook> finalBooks = new ArrayList<>();
+				// 如果结果等于size，则继续查询
+				do
+				{
+					tempBooks = IlasUitls.queryOverdueBooks(libid, overdueDays, page, pageSize);
+					page++;
+					finalBooks.addAll(tempBooks);
+				}while (tempBooks.size() == pageSize);
+				System.out.println(libid+" 的数量："+finalBooks.size());
 
-			if (libids.length > 0) {
-				for (String libid : libids) {
-					page = 0;
-					queryOverdueBooks.setPage(page);
-					queryOverdueBooks.setLibcode(libid);
+				// 遍历finalBooks
+				for (IlasOverBook book : finalBooks) {
 
-					// 调用接口
-					QueryOverdueBooksResponse queryOverdueBooksResponse = serverStub
-							.queryOverdueBooks(queryOverdueBooks);
-					// 获取返回
-					OverdueResult overdueResult = queryOverdueBooksResponse.get_return();
+					// 定义两个变量
+					String loanDate = book.getLoanDate()==null?"":book.getLoanDate();
+					String returnTime = book.getReturnTime()==null?"":book.getReturnTime();
 
-					if (overdueResult == null) {
-						continue;
-					}
-					int total = Integer.valueOf(overdueResult.getCount());
-					System.out.println("总数：" + overdueResult.getCount());// 总数
-					// 图书列表
-					OverdueBooks[] overdueBooks = overdueResult.getOverdueBooks();
-					if (total > 0) {
-						int totalPage = (total + pageSize - 1) / pageSize;
-
-						for (int i = page + 1; i <= totalPage; i++) {
-							queryOverdueBooks.setPage(i);
-							queryOverdueBooksResponse = serverStub.queryOverdueBooks(queryOverdueBooks);
-							// 获取返回
-							overdueResult = queryOverdueBooksResponse.get_return();
-							// 图书列表
-							overdueBooks = overdueResult.getOverdueBooks();
-
-							for (OverdueBooks overdueBooks2 : overdueBooks) {
-
-								BarCode = overdueBooks2.getBarCode();// 书标
-								Callno = overdueBooks2.getCallno();
-								LoanDate = overdueBooks2.getLoanDate();
-//overdueBooks2.getOrgLib();
-								phone = overdueBooks2.getPhone();
-								ReturnTime = overdueBooks2.getReturnTime();
-								Title = overdueBooks2.getTitle();
-								LoanCount = overdueBooks2.getLoanCount();
-								cardno = overdueBooks2.getIdentifier();
-								//readerInfo = overdueBooks2.setIdentifier(cardno);
-								//readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
-								//readerInfo2 = readerInfoResponse.get_return();
-								readerInfo.setIdentifier(cardno);
-								readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
-								readerInfo2 = readerInfoResponse.get_return();
-								readerName = readerInfo2.getPatronName();
-
-								System.out.println(readerName);
-								if(BarCode==null)BarCode="";
-								if(Callno==null)Callno="";
-								if(LoanDate==null)LoanDate="";
-								if(ReturnTime==null)ReturnTime="";
-								if(Title==null)Title="";
-								if(LoanCount==null)LoanCount="";
-								if(cardno==null)cardno="";
-								if(readerName==null)readerName="";
-
-								sh_txtx="尊敬的 "+readerName+" 读者，您于 "+LoanDate+" 所借书刊 "+Title+" 将于 "
-										  +ReturnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-								System.out.println(sh_txtx);
-								if(phone==null)phone="";
-								if(phone.equals("")||phone.length()!=11)
-									System.out.println("出现 不合格phone");
-								else
-								{
-								//System.out.println("success"+phone);
-								message = SendSms.SendSms(phone, sh_txtx);
-								System.out.println(phone+" : "+message);
-								}
-
-								pst.setString(1, BarCode);
-								pst.setString(2, Callno);
-								pst.setString(3, LoanDate);
-								pst.setString(4, phone);
-								pst.setString(5, ReturnTime);
-								pst.setString(6, Title);
-								pst.setString(7, LoanCount);
-								pst.setString(8, cardno);
-								pst.setString(9, "");
-								pst.setString(10, "");
-								pst.setString(11, "");
-								pst.setString(12, readerName);
-								pst.executeUpdate();
-							}
-
-
+					IlasUser ilasUser = IlasUitls.queryReaderInfo(book.getIdentifier(), "", "");
+					if (ilasUser != null) {
+						readerName = ilasUser.getPatronName();
+						sh_txtx="尊敬的 "+readerName+" 读者，您于 "+loanDate+" 所借书刊 "+book.getTitle()+" 将于 " +returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
+						System.out.println(sh_txtx);
+						phone = book.getPhone()==null?"":book.getPhone();
+						if(phone.equals("")||phone.length()!=11)
+						{
+							System.out.println("出现不合格phone");
+							// 保存到数据库
+							pst.setString(1, book.getBarCode());
+							pst.setString(2, book.getCallno());
+							pst.setString(3, loanDate);
+							pst.setString(4, book.getPhone());
+							pst.setString(5, returnTime);
+							pst.setString(6, book.getTitle());
+							pst.setString(7, book.getLoanCount());
+							pst.setString(8, book.getIdentifier());
+							pst.setString(9, "");
+							pst.setString(10, "");
+							pst.setString(11, "出现不合格phone");// 标志出现不合格phone
+							pst.setString(12, readerName);
+							int i = pst.executeUpdate();
+//							if (i > 0) {
+//								System.out.println("插入成功！");
+//							}
+//							else
+//							{
+//								System.out.println("插入失败！");
+//							}
 						}
-
+						else
+						{
+//							message = SendSms.SendSms(phone, sh_txtx);
+//							System.out.println(phone+" : "+message);
+							// 保存到数据库
+							pst.setString(1, book.getBarCode());
+							pst.setString(2, book.getCallno());
+							pst.setString(3, loanDate);
+							pst.setString(4, book.getPhone());
+							pst.setString(5, returnTime);
+							pst.setString(6, book.getTitle());
+							pst.setString(7, book.getLoanCount());
+							pst.setString(8, book.getIdentifier());
+							pst.setString(9, "");
+							pst.setString(10, "");
+							if("Http Request is accept.".equals(message))
+							{
+								pst.setString(11, "发送成功");
+							}
+							else
+							{
+								pst.setString(11, "发送失败");
+							}
+							pst.setString(12, readerName);
+							int i = pst.executeUpdate();
+//							if (i > 0) {
+//								System.out.println("插入成功！");
+//							}
+//							else
+//							{
+//								System.out.println("插入失败！");
+//							}
+						}
 					}
+
 				}
-				System.out.println("success");
-				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
-				System.out.println("管理员是否收到短信"+s);
+
 			}
+
 			pst.close();
 			conn.close();
 		} catch (Exception e) {
 			System.out.print("循环体出现空异常："+e.toString());
+			e.printStackTrace();
 		}
 	}
 
