@@ -7,7 +7,7 @@ package datatodata;
  * @author ilas-pc
  *
  */
-public class ReaderInfo {
+public class ReaderInfo3 {
 	
 	/**
 	 * 证有效期	String	长度8，	必须	格式：YYYYMMDD

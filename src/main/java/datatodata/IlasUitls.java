@@ -76,6 +76,76 @@ public class IlasUitls {
         return ilasUser;
     }
 
+
+    // * 图书列表。
+    static public List<IlasCollecitonInfo> queryCollectionInfo(String bookRecNO){// 书目号
+        String apiURL = "http://202.105.30.39:8280/fslibNew5U/queryCollectionInfo";
+        SoapClient client = SoapClient.create(apiURL).init(SoapProtocol.SOAP_1_2)
+                .setMethod("impl:queryCollectionInfo", "http://impl.services.webservice.ilas.com")
+                .setParam("bookRecNO", bookRecNO)
+//
+                .header(Header.AUTHORIZATION, "Basic U0QwMDEubGliOjE1OSMjc2QwMDE6NGVlMTUwYWVlOGEzNGM5YmEyODhlMzFhM2M1NGFlZWY=")
+                .header(Header.CONTENT_TYPE, "text/html");
+        String body = client.send(true);
+
+//        System.out.println(body);
+        JSONObject json = JSONUtil.parseFromXml(body);
+//        System.out.println(json);
+        JSONObject soapenvEnvelope = (JSONObject) json.get("soapenv:Envelope");
+//        System.out.println(soapenvEnvelope);
+        JSONObject soapenvBody= (JSONObject) soapenvEnvelope.get("soapenv:Body");
+//        System.out.println(soapenvBody);
+        JSONObject queryAdvancedBookInfoResponse = (JSONObject) soapenvBody.get("ns:queryCollectionInfoResponse");
+//        System.out.println(queryAdvancedBookInfoResponse);
+        JSONArray nsReturn = (JSONArray) queryAdvancedBookInfoResponse.get("ns:return");
+        // 遍历nsReturn
+        List<IlasCollecitonInfo> ilasCollecitonInfos = new ArrayList<>();
+        for (int i = 0; i < nsReturn.size(); i++) {
+            JSONObject jsonObject = (JSONObject) nsReturn.get(i);
+            IlasCollecitonInfo ilasCollecitonInfo = new IlasCollecitonInfo();
+            ilasCollecitonInfo.setBookRecNO(jsonObject.getStr("ax21:bookRecNO"));
+            ilasCollecitonInfo.setBarCode(jsonObject.getStr("ax21:barCode"));
+            ilasCollecitonInfo.setCirType(jsonObject.getStr("ax21:cirType"));
+            ilasCollecitonInfo.setCurLib(jsonObject.getStr("ax21:curLib"));
+            ilasCollecitonInfo.setCurLocal(jsonObject.getStr("ax21:curLocal"));
+            ilasCollecitonInfo.setOrgLib(jsonObject.getStr("ax21:orgLib"));
+            ilasCollecitonInfo.setOrgLocal(jsonObject.getStr("ax21:orgLocal"));
+            ilasCollecitonInfo.setStatus(jsonObject.getStr("ax21:status"));
+            ilasCollecitonInfo.setTitle(jsonObject.getStr("ax21:title"));
+            ilasCollecitonInfo.setVolInfo(jsonObject.getStr("ax21:volInfo"));
+
+            ilasCollecitonInfos.add(ilasCollecitonInfo);
+        }
+
+//        JSONArray ax21Books = (JSONArray) nsReturn.get("ax21:books");
+//        System.out.println(ax21Books);
+
+        return ilasCollecitonInfos;
+    }
+
+    // 读者通过接口查询图书馆藏信息，图书馆返回图书的相关简单信息用以页面列表显示，接口返回
+    static public List<IlasCollecitonInfo> queryCollectionInfoFinal(String bookRecNO) {// 书目号
+        List<IlasCollecitonInfo> ilasCollecitonInfos = queryCollectionInfo(bookRecNO);
+        List<IlasCollecitonInfo> all = new ArrayList<>();
+        String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
+                "SD011", "SD012", "DX001" }; // 图书馆代码
+        // 遍历结果
+        ilasCollecitonInfos.stream().iterator().forEachRemaining(item->{
+
+            for(String libid : libids)
+            {
+                if(libid.equals(item.getCurLib()))
+                {
+                    all.add(item);
+                }
+            }
+        });
+        // 显示结果
+        all.stream().forEach(System.out::println);
+
+        return all;
+    }
+
     //图书高级检索接口
     static public List<IlasBook> queryAdvancedBookInfo(String title)
     {
@@ -101,24 +171,34 @@ public class IlasUitls {
         JSONObject queryAdvancedBookInfoResponse = (JSONObject) soapenvBody.get("ns:queryAdvancedBookInfoResponse");
         System.out.println(queryAdvancedBookInfoResponse);
         JSONObject nsReturn = (JSONObject) queryAdvancedBookInfoResponse.get("ns:return");
-        JSONArray ax21Books = (JSONArray) nsReturn.get("ax21:books");
-        System.out.println(ax21Books);
+        JSONObject ax21Books = (JSONObject) nsReturn.get("ax21:books");
+        System.out.println("ax21Books:"+ax21Books);
 
+        JSONObject jsonObject = (JSONObject) ax21Books;
+        IlasBook ilasBook = new IlasBook();
+        ilasBook.setAuthor(jsonObject.getStr("ax21:author"));
+        ilasBook.setBookRecNO(jsonObject.getStr("ax21:bookRecNO"));
+        ilasBook.setCallNO(jsonObject.getStr("ax21:callNO"));
+        ilasBook.setClassNO(jsonObject.getStr("ax21:classNO"));
+        ilasBook.setPublisher(jsonObject.getStr("ax21:publisher"));
+        ilasBook.setTitleIdentifier(jsonObject.getStr("ax21:titleIdentifier"));
         List<IlasBook> ilasBooks = new ArrayList<IlasBook>();
-        ax21Books.stream().iterator().forEachRemaining(jb->{
-            JSONObject jsonObject = (JSONObject) jb;
-            IlasBook ilasBook = new IlasBook();
-            ilasBook.setAuthor(jsonObject.getStr("ax21:author"));
-            ilasBook.setBookRecNO(jsonObject.getStr("ax21:bookRecNO"));
-            ilasBook.setCallNO(jsonObject.getStr("ax21:callNO"));
-            ilasBook.setClassNO(jsonObject.getStr("ax21:classNO"));
-            ilasBook.setPublisher(jsonObject.getStr("ax21:publisher"));
-            ilasBook.setTitleIdentifier(jsonObject.getStr("ax21:titleIdentifier"));
+        ilasBooks.add(ilasBook);
 
-            ilasBooks.add(ilasBook);
-        });
+//        ax21Books.stream().iterator().forEachRemaining(jb->{
+//            JSONObject jsonObject = (JSONObject) jb;
+//            IlasBook ilasBook = new IlasBook();
+//            ilasBook.setAuthor(jsonObject.getStr("ax21:author"));
+//            ilasBook.setBookRecNO(jsonObject.getStr("ax21:bookRecNO"));
+//            ilasBook.setCallNO(jsonObject.getStr("ax21:callNO"));
+//            ilasBook.setClassNO(jsonObject.getStr("ax21:classNO"));
+//            ilasBook.setPublisher(jsonObject.getStr("ax21:publisher"));
+//            ilasBook.setTitleIdentifier(jsonObject.getStr("ax21:titleIdentifier"));
+//
+//            ilasBooks.add(ilasBook);
+//        });
         System.out.println(ilasBooks);
-        return null;
+        return ilasBooks;
     }
 
     //图书馆过期图书查询接口
@@ -137,6 +217,7 @@ public class IlasUitls {
                 .header(Header.AUTHORIZATION, "Basic U0QwMDEubGliOjE1OSMjc2QwMDE6YTMwZDkwYmM2Y2IwNDk0N2E0M2E5OGM0NzQ3MzJhOTk=")
                 .header(Header.CONTENT_TYPE, "text/html");
         System.out.println("1");
+        System.out.println("3");
         String body = client.send(true);
 //        System.out.println(body);
         System.out.println("2");
@@ -733,27 +814,38 @@ public class IlasUitls {
 
     public static void main(String[] args) {
 
-        String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
-                "SD011", "SD012", "DX001" }; // 图书馆代码
-        int overdueDays = -5; // 过期天数参数
-        int page = 0; // 页码
-        int pageSize = 50; // 每页请求数量
-
-        for (String libid : libids) {
-            page = 0;
-            List<IlasOverBook> tempBooks = null;
-            List<IlasOverBook> finalBooks = new ArrayList<>();
-            // 如果结果等于size，则继续查询
-            do
-            {
-                tempBooks = queryOverdueBooks(libid, overdueDays, page, pageSize);
-                page++;
-                finalBooks.addAll(tempBooks);
-            }while (tempBooks.size() == pageSize);
-            System.out.println(libid+" 的数量："+finalBooks.size());
+//        String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
+//                "SD011", "SD012", "DX001" }; // 图书馆代码
+//        int overdueDays = -5; // 过期天数参数
+//        int page = 0; // 页码
+//        int pageSize = 50; // 每页请求数量
+//
+//        for (String libid : libids) {
+//            page = 0;
+//            List<IlasOverBook> tempBooks = null;
+//            List<IlasOverBook> finalBooks = new ArrayList<>();
+//            // 如果结果等于size，则继续查询
+//            do
+//            {
+//                tempBooks = queryOverdueBooks(libid, overdueDays, page, pageSize);
+//                page++;
+//                finalBooks.addAll(tempBooks);
+//            }while (tempBooks.size() == pageSize);
+//            System.out.println(libid+" 的数量："+finalBooks.size());
 
             // 保存到数据库
 
-        }
+        List<IlasBook> ilasBooks = queryAdvancedBookInfo("西藏深度摄影之旅");
+        // 显示结果
+        ilasBooks.stream().forEach(item->{
+            System.out.println(item);
+            List<IlasCollecitonInfo> ilasCollecitonInfos = queryCollectionInfoFinal(item.getBookRecNO());
+            // 显示结果
+            System.out.println("馆藏信息：");
+            ilasCollecitonInfos.stream().forEach(item1->{
+                System.out.println(item1);
+            });
+        });
     }
-}
+    }
+

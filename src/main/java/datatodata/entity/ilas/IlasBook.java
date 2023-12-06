@@ -16,6 +16,18 @@ public class IlasBook {
     private String titleIdentifier;
     private String volInfo;
 
+    @Override
+    public String toString() {
+        return "IlasBook{" +
+                "author='" + author + '\'' +
+                ", bookRecNO='" + bookRecNO + '\'' +
+                ", callNO='" + callNO + '\'' +
+                ", classNO='" + classNO + '\'' +
+                ", publisher='" + publisher + '\'' +
+                ", titleIdentifier='" + titleIdentifier + '\'' +
+                ", volInfo='" + volInfo + '\'' +
+                '}';
+    }
 
     public String getAuthor() {
         return author;
