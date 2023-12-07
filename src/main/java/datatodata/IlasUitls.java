@@ -152,27 +152,28 @@ public class IlasUitls {
         String apiURL = "http://202.105.30.39:8280/fslibNew5U/queryAdvancedBookInfo";
         SoapClient client = SoapClient.create(apiURL).init(SoapProtocol.SOAP_1_2)
                 .setMethod("impl:queryAdvancedBookInfo", "http://impl.services.webservice.ilas.com")
-                .setParam("institutionId", "SD001")
+                .setParam("institutionId", "ALL")
                 .setParam("titleIdentifier", title)
-                .setParam("pageno", 1)
+                .setParam("pageno", 0)
                 .setParam("pagecount",10)
 //
                 .header(Header.AUTHORIZATION, "Basic U0QwMDEubGliOjE1OSMjc2QwMDE6MTdlZWZjMTA2ZTI1NDc2ZTlhZTM0OGZjMmU5OWIzMjQ=")
                 .header(Header.CONTENT_TYPE, "text/html");
         String body = client.send(true);
 
-        System.out.println(body);
+//        System.out.println(body);
         JSONObject json = JSONUtil.parseFromXml(body);
-        System.out.println(json);
+//        System.out.println(json);
         JSONObject soapenvEnvelope = (JSONObject) json.get("soapenv:Envelope");
-        System.out.println(soapenvEnvelope);
+//        System.out.println(soapenvEnvelope);
         JSONObject soapenvBody= (JSONObject) soapenvEnvelope.get("soapenv:Body");
-        System.out.println(soapenvBody);
+//        System.out.println(soapenvBody);
         JSONObject queryAdvancedBookInfoResponse = (JSONObject) soapenvBody.get("ns:queryAdvancedBookInfoResponse");
-        System.out.println(queryAdvancedBookInfoResponse);
+//        System.out.println(queryAdvancedBookInfoResponse);
         JSONObject nsReturn = (JSONObject) queryAdvancedBookInfoResponse.get("ns:return");
+        System.out.println(nsReturn);
         JSONObject ax21Books = (JSONObject) nsReturn.get("ax21:books");
-        System.out.println("ax21Books:"+ax21Books);
+//        System.out.println("ax21Books:"+ax21Books);
 
         JSONObject jsonObject = (JSONObject) ax21Books;
         IlasBook ilasBook = new IlasBook();
@@ -197,7 +198,7 @@ public class IlasUitls {
 //
 //            ilasBooks.add(ilasBook);
 //        });
-        System.out.println(ilasBooks);
+//        System.out.println(ilasBooks);
         return ilasBooks;
     }
 
@@ -787,7 +788,7 @@ public class IlasUitls {
         System.out.println(books);
         books.stream().iterator().forEachRemaining(item->{
             item = (JSONObject) item;
-            System.out.println(item);
+//            System.out.println(item);
             IlasBook ilasBook = new IlasBook();
             ilasBook.setBookRecNO(((JSONObject) item).get("ax21:bookRecNO").toString());
             ilasBook.setVolInfo(((JSONObject) item).get("ax21:volInfo").toString());
@@ -797,7 +798,7 @@ public class IlasUitls {
             ilasBook.setTitleIdentifier(((JSONObject) item).get("ax21:titleIdentifier").toString());
             ilasBook.setClassNO(((JSONObject) item).get("ax21:classNO").toString());
 
-            System.out.println(ilasBook);
+//            System.out.println(ilasBook);
             ilasBooks.add(ilasBook);
         });
 
@@ -835,17 +836,20 @@ public class IlasUitls {
 
             // 保存到数据库
 
-        List<IlasBook> ilasBooks = queryAdvancedBookInfo("西藏深度摄影之旅");
+//        List<IlasBook> ilasBooks = querySimpleBookInfo("ALL","西藏深度摄影之旅",0,10);
         // 显示结果
-        ilasBooks.stream().forEach(item->{
-            System.out.println(item);
-            List<IlasCollecitonInfo> ilasCollecitonInfos = queryCollectionInfoFinal(item.getBookRecNO());
-            // 显示结果
-            System.out.println("馆藏信息：");
-            ilasCollecitonInfos.stream().forEach(item1->{
-                System.out.println(item1);
-            });
-        });
+//        ilasBooks.stream().forEach(item->{
+//            System.out.println(item);
+//            List<IlasCollecitonInfo> ilasCollecitonInfos = queryCollectionInfoFinal(item.getBookRecNO());
+//            // 显示结果
+//            System.out.println("馆藏信息：");
+//            ilasCollecitonInfos.stream().forEach(item1->{
+//                System.out.println(item1);
+//            });
+//        });
+
+        queryCollectionInfoFinal("893564");
+
     }
     }
 

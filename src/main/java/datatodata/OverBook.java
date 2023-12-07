@@ -43,4 +43,28 @@ public class OverBook {
     public void setTitle(String title) {
         Title = title;
     }
+
+    @Override
+    public String toString() {
+        return "OverBook{" +
+                "phone='" + phone + '\'' +
+                ", LoanDate='" + LoanDate + '\'' +
+                ", ReturnTime='" + ReturnTime + '\'' +
+                ", Title='" + Title + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this.getPhone().equals(((OverBook)obj).getPhone()) && this.getLoanDate().equals(((OverBook)obj).getLoanDate()) && this.getReturnTime().equals(((OverBook)obj).getReturnTime()))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return 1;
+    }
 }

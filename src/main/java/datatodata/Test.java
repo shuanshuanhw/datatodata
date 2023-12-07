@@ -89,6 +89,7 @@ public class Test {
 					}
 					int total = Integer.valueOf(overdueResult.getCount());
 					System.out.println("总数：" + overdueResult.getCount());// 总数
+
 					// 图书列表
 					OverdueBooks[] overdueBooks = overdueResult.getOverdueBooks();
 //					ArrayList<OverdueBooks> list = new ArrayList<OverdueBooks>(Arrays.asList(overdueBooks)) ;
@@ -101,8 +102,9 @@ public class Test {
 //					}
 
 
-					HashSet<String> list = new HashSet();
-					HashSet<String> list2 = new HashSet();
+					HashSet<OverBook> list = new HashSet();
+					HashSet<OverBook> list2 = new HashSet();
+					ArrayList<OverBook> arrayList = new ArrayList<OverBook>();
 					if (total > 0) {
 						int totalPage = (total + pageSize - 1) / pageSize;
 
@@ -115,7 +117,7 @@ public class Test {
 							overdueBooks = overdueResult.getOverdueBooks();
 
 							for (OverdueBooks overdueBooks2 : overdueBooks) {
-
+								System.out.println(overdueBooks2.getPhone()+" "+overdueBooks2.getTitle()+" "+overdueBooks2.getReturnTime());
 
 
 
@@ -126,6 +128,7 @@ public class Test {
 								phone = overdueBooks2.getPhone();
 								ReturnTime = overdueBooks2.getReturnTime();
 								Title = overdueBooks2.getTitle();
+								String title = Title;
 								LoanCount = overdueBooks2.getLoanCount();
 								cardno = overdueBooks2.getIdentifier();
 								//readerInfo = overdueBooks2.setIdentifier(cardno);
@@ -162,41 +165,35 @@ public class Test {
 								else if(Title.length() >= 5) {
 								Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
 								}
-								sh_txtx="尊敬的读者，您于 "+LoanDate+" 所借书刊 "+Title+" 将于 "
-										  +ReturnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
+//								sh_txtx="尊敬的读者，您于 "+LoanDate+" 所借书刊 "+Title+" 将于 "
+//										  +ReturnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 //								System.out.println(sh_txtx);
 								if(phone==null)phone="";
 
-//								OverBook overBook = new OverBook();
-//								overBook.setLoanDate(LoanDate);
-//								overBook.setReturnTime(ReturnTime);
-//								overBook.setPhone(phone);
-								list.add(phone);
-								//
+								LoanDate = LoanDate.substring(0, 10);
+								ReturnTime = ReturnTime.substring(0, 10);
+								OverBook overBook = new OverBook();
+								overBook.setLoanDate(LoanDate);
+								overBook.setReturnTime(ReturnTime);
+								overBook.setPhone(phone);
+								overBook.setTitle(Title);
+								list.add(overBook);
+								arrayList.add(overBook);
 
 
-//								if(phone.equals("")||phone.length()!=11)
-//									System.out.println("出现 不合格phone");
-//								else
-//								{
-								//System.out.println("success"+phone);
-//								message = SendSms.SendSms(phone, sh_txtx);
-//								System.out.println(phone+" : "+message);
-//								}
-
-//								pst.setString(1, BarCode);
-//								pst.setString(2, Callno);
-//								pst.setString(3, LoanDate);
-//								pst.setString(4, phone);
-//								pst.setString(5, ReturnTime);
-//								pst.setString(6, Title);
-//								pst.setString(7, LoanCount);
-//								pst.setString(8, cardno);
-//								pst.setString(9, "");
-//								pst.setString(10, "");
-//								pst.setString(11, "");
-//								pst.setString(12, readerName);
-//								pst.executeUpdate();
+								pst.setString(1, BarCode);
+								pst.setString(2, Callno);
+								pst.setString(3, LoanDate);
+								pst.setString(4, phone);
+								pst.setString(5, ReturnTime);
+								pst.setString(6, title);
+								pst.setString(7, LoanCount);
+								pst.setString(8, cardno);
+								pst.setString(9, "");
+								pst.setString(10, "");
+								pst.setString(11, "");
+								pst.setString(12, readerName);
+								pst.executeUpdate();
 							}
 
 
@@ -205,25 +202,57 @@ public class Test {
 					}
 					System.out.println("去重前有" + list.size() + "条数据");
 					// 显示数据
-					for(String overBook : list) {
-						if (overBook == null) overBook = "";
-						if (!"".equals(overBook) && overBook.length() == 11) {
+					for(OverBook overBook : list) {
+						if (overBook.getPhone().length() == 11) {
 							list2.add(overBook);
-							System.out.println(overBook);
+//							System.out.println(overBook);
 						}
 					}
 
 					// 这里显示去重后有多少数据
 					System.out.println("去重后有" + list2.size() + "条数据");
-					for(String overBook : list2)
+					for(OverBook overBook : list2)
 					{
-						// 通过书名取出书的对象
 
+						System.out.println(overBook);
+						// 通过手机号码取出所有的数据
+						List<OverBook> subOverBookList = new ArrayList<OverBook>();
+						for(OverBook overBook2 : arrayList)
+						{
+							if(overBook.getPhone().equals(overBook2.getPhone()))
+							{
+								subOverBookList.add(overBook2);
+							}
+						}
+						// 在这里处理短信发送
+						String smsText = "";
+						String loanDate = overBook.getLoanDate().trim();
+						String returnTime = overBook.getReturnTime().trim();
+						System.out.println("loanDate:"+loanDate.length());
+						if(loanDate.trim().length() == 8)
+							loanDate = loanDate.substring(0,4)+"年"+loanDate.substring(4,6)+"月"+loanDate.substring(6,8)+"日";
+						if(returnTime.length() == 8)
+							returnTime = returnTime.substring(0,4)+"年"+returnTime.substring(4,6)+"月"+returnTime.substring(6,8)+"日";
+						if(subOverBookList.size() == 1)
+						{
+							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
+									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
+						}
+						else
+						{
+							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
+									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
+						}
+
+						System.out.println("短信内容："+smsText);
+						message = SendSms.SendSms(overBook.getPhone(), smsText);
+						System.out.println(overBook.getPhone()+" : "+message);
 					}
+					System.out.println(" : "+list2.size());
 				}
 				System.out.println("success");
-//				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
-//				System.out.println("管理员是否收到短信"+s);
+				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
+				System.out.println("管理员是否收到短信"+s);
 			}
 			pst.close();
 			conn.close();
