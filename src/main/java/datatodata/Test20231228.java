@@ -1,12 +1,11 @@
 package datatodata;
 
 
+
+
 import com.ilas.entity.xsd.OverdueBooks;
 import com.ilas.entity.xsd.OverdueResult;
-import com.ilas.webservice.services.impl.QueryOverdueBooks;
-import com.ilas.webservice.services.impl.QueryOverdueBooksResponse;
-import com.ilas.webservice.services.impl.ServiceServerStub;
-import org.apache.commons.lang3.StringUtils;
+import com.ilas.webservice.services.impl.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,29 +14,22 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
-import java.sql.*;
-import java.text.SimpleDateFormat;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
-import java.util.Date;
 
-public class Test {
+public class Test20231228 {
 
 	public void testneww() throws RemoteException, ClassNotFoundException, SQLException, MalformedURLException {
 
 		//Properties pro = Test.getProperties();
 
-
 		Connection conn = null;
 		PreparedStatement pst = null;
 		Class.forName("com.mysql.cj.jdbc.Driver");// 指定连接类型
 //		Class.forName("com.mysql.jdbc.Driver");// 指定连接类型
-
-		// 连接用户的数据库
-		Connection conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/wxpublic?useUnicode=true&characterEncoding=utf8", "root",
-				"651392qQ");
-		PreparedStatement pst2 = null;
-		ResultSet rs2 = null;
-
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
 				"651392qQ");//  获取连接
 		String sql = "INSERT INTO sms1(BarCode,Callno,LoanDate,Phone,ReturnTime,Title,LoanCount,Cardno,readerInfo,readerInfoResponse,readerInfo2,readerName) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
@@ -70,8 +62,8 @@ public class Test {
 			// 显示读者信息
 
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
-					"SD011", "SD012", "DX001","NH001" }; // 图书馆代码
-			int overdueDays = -15; // 过期天数参数
+					"SD011", "SD012", "DX001" }; // 图书馆代码
+			int overdueDays = -5; // 过期天数参数
 			int page = 1; // 页码
 			int pageSize = 50; // 每页请求数量
 			QueryOverdueBooks queryOverdueBooks = new QueryOverdueBooks();
@@ -184,7 +176,6 @@ public class Test {
 								overBook.setReturnTime(ReturnTime);
 								overBook.setPhone(phone);
 								overBook.setTitle(Title);
-								overBook.setCardNo(cardno);
 								list.add(overBook);
 								arrayList.add(overBook);
 
@@ -241,53 +232,26 @@ public class Test {
 							loanDate = loanDate.substring(0,4)+"年"+loanDate.substring(4,6)+"月"+loanDate.substring(6,8)+"日";
 						if(returnTime.length() == 8)
 							returnTime = returnTime.substring(0,4)+"年"+returnTime.substring(4,6)+"月"+returnTime.substring(6,8)+"日";
-
-						// 通过借书证号和手机号码，取出读者的openid
-						String openid = "";
-						String sql2 = "select openid from sys_user where reader_id = ? and phone = ?";
-						pst2 = conn2.prepareStatement(sql2);
-						pst2.setString(1, overBook.getCardNo());
-						pst2.setString(2, overBook.getPhone());
-						rs2 = pst2.executeQuery();
-						if(rs2.next())
-						{
-							openid = rs2.getString("openid");
-						}
-						if(subOverBookList.size() == 1 && StringUtils.isNotEmpty(openid))
+						if(subOverBookList.size() == 1)
 						{
 							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-
-							System.out.println("发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime,overBook.getPhone());
-							System.out.println("发送模板消息："+check);
-						}
-						else if(StringUtils.isNotEmpty(openid))
-						{
-							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
-									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-							System.out.println("11发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime,overBook.getPhone());
-							System.out.println("发送模板消息："+check);
 						}
 						else
 						{
-//							System.out.println("没有openid"+overBook.getPhone());
+							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
+									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 						}
 
-//						System.out.println("短信内容："+smsText);
-//						message = SendSms.SendSms(overBook.getPhone(), smsText);
-//						System.out.println(overBook.getPhone()+" : "+message);
+						System.out.println("短信内容："+smsText);
+						message = SendSms.SendSms(overBook.getPhone(), smsText);
+						System.out.println(overBook.getPhone()+" : "+message);
 					}
 					System.out.println(" : "+list2.size());
 				}
 				System.out.println("success");
-//				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
-//				System.out.println("管理员是否收到短信"+s);
-				// 今天的日期
-				String returnTime = new SimpleDateFormat("yyyy年MM月dd日").format(new Date());
-				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", "00000000", "已经成功发送", returnTime,"15007572525");
-				System.out.println("发送模板消息："+check);
+				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
+				System.out.println("管理员是否收到短信"+s);
 			}
 			pst.close();
 			conn.close();
@@ -303,7 +267,7 @@ public class Test {
 			InputStream in = null;
 			try {
 				// 开发环境读取
-				URL url = Test.class.getClassLoader().getResource("datasource.properties");
+				URL url = Test20231228.class.getClassLoader().getResource("datasource.properties");
 				File file = new File(url.getFile());
 				in = new FileInputStream(file);
 			} catch (Exception e) {
@@ -323,7 +287,7 @@ public class Test {
 			throws IOException, ClassNotFoundException, SQLException {
 
 		System.out.println("开始执行");
-		Test test = new Test();
+		Test20231228 test = new Test20231228();
 		test.testneww();
 
 	}
