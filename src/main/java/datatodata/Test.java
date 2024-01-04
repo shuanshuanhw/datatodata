@@ -6,6 +6,8 @@ import com.ilas.entity.xsd.OverdueResult;
 import com.ilas.webservice.services.impl.QueryOverdueBooks;
 import com.ilas.webservice.services.impl.QueryOverdueBooksResponse;
 import com.ilas.webservice.services.impl.ServiceServerStub;
+import datatodata.entity.ilas.IlasOverBook;
+import datatodata.entity.ilas.IlasUser;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -71,226 +73,194 @@ public class Test {
 
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
 					"SD011", "SD012", "DX001","NH001" }; // 图书馆代码
-			int overdueDays = -15; // 过期天数参数
-			int page = 1; // 页码
-			int pageSize = 50; // 每页请求数量
-			QueryOverdueBooks queryOverdueBooks = new QueryOverdueBooks();
 
-			queryOverdueBooks.setDays(overdueDays);
-			queryOverdueBooks.setSize(pageSize);
+			for(String lib:libids)
+			{
+				HashSet<OverBook> list = new HashSet();
+				ArrayList<OverBook> arrayList = new ArrayList<OverBook>();
+				int overdueDays = -365; // 过期天数参数Test
+				int page = 0; // 页码
+				int pageSize = 500; // 每页请求数量
+				List<IlasOverBook> sd002 = new ArrayList<>();
+				List<IlasOverBook> sd001 = new ArrayList<>();
+				do{
+					sd001 = IlasUitls.queryOverdueBooks(lib, overdueDays, page, pageSize);
+					sd002.addAll(sd001);
+					page++;
+				}while (sd001.size() == pageSize);
+				// 显示结果
+				System.out.println("总数：" + sd002.size());// 总数
 
-			if (libids.length > 0) {
-				for (String libid : libids) {
-					page = 0;
-					queryOverdueBooks.setPage(page);
-					queryOverdueBooks.setLibcode(libid);
+				for(IlasOverBook overdueBooks2 :sd002)
+				{
+//					System.out.println(overdueBooks2.getPhone()+" "+overdueBooks2.getTitle()+" "+overdueBooks2.getReturnTime()+" "+overdueBooks2.getLoanDate()+" "+overdueBooks2.getIdentifier());
 
-					// 调用接口
-					QueryOverdueBooksResponse queryOverdueBooksResponse = serverStub
-							.queryOverdueBooks(queryOverdueBooks);
-					// 获取返回
-					OverdueResult overdueResult = queryOverdueBooksResponse.get_return();
+					BarCode = overdueBooks2.getBarCode();// 书标
+					Callno = overdueBooks2.getCallno();
+					LoanDate = overdueBooks2.getLoanDate();
+					phone = overdueBooks2.getPhone();
+					ReturnTime = overdueBooks2.getReturnTime();
+					Title = overdueBooks2.getTitle();
+					String title = overdueBooks2.getTitle();
+					LoanCount = overdueBooks2.getLoanCount();
+					cardno = overdueBooks2.getIdentifier();
 
-					if (overdueResult == null) {
-						continue;
+					if(BarCode==null)BarCode="";
+					if(Callno==null)Callno="";
+					if(LoanDate==null)LoanDate="";
+					if(ReturnTime==null)ReturnTime="";
+					if(Title==null)Title="";
+					if(LoanCount==null)LoanCount="";
+					if(cardno==null)cardno="";
+					if(readerName==null)readerName="";
+
+					// 处理title的敏感信息
+					if(Title.length() <= 1) {
+						Title = Title;
 					}
-					int total = Integer.valueOf(overdueResult.getCount());
-					System.out.println("总数：" + overdueResult.getCount());// 总数
-
-					// 图书列表
-					OverdueBooks[] overdueBooks = overdueResult.getOverdueBooks();
-//					ArrayList<OverdueBooks> list = new ArrayList<OverdueBooks>(Arrays.asList(overdueBooks)) ;
-//					for (int i = 0; i < list.size(); i++) {
-//						for (int j = 0; j < list.size(); j++) {
-//							if (i != j && list.get(i).getPhone().equals(list.get(j).getPhone()) ) {
-//								list.remove(list.get(j));
-//							}
-//						}
-//					}
-
-
-					HashSet<OverBook> list = new HashSet();
-					HashSet<OverBook> list2 = new HashSet();
-					ArrayList<OverBook> arrayList = new ArrayList<OverBook>();
-					if (total > 0) {
-						int totalPage = (total + pageSize - 1) / pageSize;
-
-						for (int i = page + 1; i <= totalPage; i++) {
-							queryOverdueBooks.setPage(i);
-							queryOverdueBooksResponse = serverStub.queryOverdueBooks(queryOverdueBooks);
-							// 获取返回
-							overdueResult = queryOverdueBooksResponse.get_return();
-							// 图书列表
-							overdueBooks = overdueResult.getOverdueBooks();
-
-							for (OverdueBooks overdueBooks2 : overdueBooks) {
-								System.out.println(overdueBooks2.getPhone()+" "+overdueBooks2.getTitle()+" "+overdueBooks2.getReturnTime());
-
-
-
-								BarCode = overdueBooks2.getBarCode();// 书标
-								Callno = overdueBooks2.getCallno();
-								LoanDate = overdueBooks2.getLoanDate();
-//overdueBooks2.getOrgLib();
-								phone = overdueBooks2.getPhone();
-								ReturnTime = overdueBooks2.getReturnTime();
-								Title = overdueBooks2.getTitle();
-								String title = Title;
-								LoanCount = overdueBooks2.getLoanCount();
-								cardno = overdueBooks2.getIdentifier();
-								//readerInfo = overdueBooks2.setIdentifier(cardno);
-								//readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
-								//readerInfo2 = readerInfoResponse.get_return();
-//								readerInfo.setIdentifier(cardno);
-//								readerInfoResponse = serverStub.queryReaderInfo(readerInfo);
-//								readerInfo2 = readerInfoResponse.get_return();
-//								readerName = readerInfo2.getPatronName();
-
-//								System.out.println(readerName);
-								if(BarCode==null)BarCode="";
-								if(Callno==null)Callno="";
-								if(LoanDate==null)LoanDate="";
-								if(ReturnTime==null)ReturnTime="";
-								if(Title==null)Title="";
-								if(LoanCount==null)LoanCount="";
-								if(cardno==null)cardno="";
-								if(readerName==null)readerName="";
-
-								// 处理title的敏感信息
-								if(Title.length() <= 1) {
-									Title = Title;
-								}
-								else if(Title.length() == 2) {
-								Title = Title.substring(0, 1) + "*";
-								}
-								else if(Title.length() == 3) {
-								Title = Title.substring(0, 1) + "*" + Title.substring(2, 3);
-								}
-								else if(Title.length() == 4) {
-								Title = Title.substring(0, 1) + "**" + Title.substring(3, Title.length());
-								}
-								else if(Title.length() >= 5) {
-								Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
-								}
-//								sh_txtx="尊敬的读者，您于 "+LoanDate+" 所借书刊 "+Title+" 将于 "
-//										  +ReturnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-//								System.out.println(sh_txtx);
-								if(phone==null)phone="";
-
-								LoanDate = LoanDate.substring(0, 10);
-								ReturnTime = ReturnTime.substring(0, 10);
-								OverBook overBook = new OverBook();
-								overBook.setLoanDate(LoanDate);
-								overBook.setReturnTime(ReturnTime);
-								overBook.setPhone(phone);
-								overBook.setTitle(Title);
-								overBook.setCardNo(cardno);
-								list.add(overBook);
-								arrayList.add(overBook);
-
-
-								pst.setString(1, BarCode);
-								pst.setString(2, Callno);
-								pst.setString(3, LoanDate);
-								pst.setString(4, phone);
-								pst.setString(5, ReturnTime);
-								pst.setString(6, title);
-								pst.setString(7, LoanCount);
-								pst.setString(8, cardno);
-								pst.setString(9, "");
-								pst.setString(10, "");
-								pst.setString(11, "");
-								pst.setString(12, readerName);
-								pst.executeUpdate();
-							}
-
-
-						}
-
+					else if(Title.length() == 2) {
+						Title = Title.substring(0, 1) + "*";
 					}
-					System.out.println("去重前有" + list.size() + "条数据");
-					// 显示数据
-					for(OverBook overBook : list) {
-						if (overBook.getPhone().length() == 11) {
-							list2.add(overBook);
-//							System.out.println(overBook);
-						}
+					else if(Title.length() == 3) {
+						Title = Title.substring(0, 1) + "*" + Title.substring(2, 3);
+					}
+					else if(Title.length() == 4) {
+						Title = Title.substring(0, 1) + "**" + Title.substring(3, Title.length());
+					}
+					else if(Title.length() >= 5) {
+						Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
 					}
 
-					// 这里显示去重后有多少数据
-					System.out.println("去重后有" + list2.size() + "条数据");
-					for(OverBook overBook : list2)
+					if(phone==null)phone="";
+
+					LoanDate = LoanDate.substring(0, 10);
+					ReturnTime = ReturnTime.substring(0, 10);
+					OverBook overBook = new OverBook();
+					overBook.setLoanDate(LoanDate);
+					overBook.setReturnTime(ReturnTime);
+					overBook.setPhone(phone);
+					overBook.setTitle(Title);
+					overBook.setCardNo(cardno);
+
+					// 根据书证号查询读者信息
+					IlasUser ilasUser = IlasUitls.queryReaderInfo(cardno, "", "");
+//		            System.out.println(ilasUser.getPatronName());
+					overBook.setName(ilasUser.getPatronName());
+					list.add(overBook);
+					arrayList.add(overBook);
+
+
+					pst.setString(1, BarCode);
+					pst.setString(2, Callno);
+					pst.setString(3, LoanDate);
+					pst.setString(4, phone);
+					pst.setString(5, ReturnTime);
+					pst.setString(6, title);
+					pst.setString(7, LoanCount);
+					pst.setString(8, cardno);
+					pst.setString(9, "");
+					pst.setString(10, "");
+					pst.setString(11, "");
+					pst.setString(12, ilasUser.getPatronName());
+					pst.executeUpdate();
+
+					String identifier = overdueBooks2.getIdentifier();
+					// 根据书证号查询读者信息
+//					IlasUser ilasUser = IlasUitls.queryReaderInfo(identifier, "", "");
+		            System.out.println(ilasUser.getPatronName());
+					System.out.println(overdueBooks2.getPhone()+overdueBooks2.getTitle()+overdueBooks2.getLoanDate()+overdueBooks2.getReturnTime()+overdueBooks2.getIdentifier());
+				}
+				System.out.println("sd002.size()"+sd002.size());
+
+				System.out.println("去重前有" + list.size() + "条数据");
+				// 显示list
+				System.out.println("去重前数据");
+				for(OverBook overBook : list) {
+					System.out.println(overBook);
+				}
+
+// 这里显示去重后有多少数据
+				for(OverBook overBook : list)
+				{
+					System.out.println("-------------------------------------------------------------------------------------------------------------------------");
+					System.out.println(overBook);
+					// 通过书证号、借书日期、还书日期 取出所有的数据
+					List<OverBook> subOverBookList = new ArrayList<OverBook>();
+					for(OverBook overBook2 : arrayList)
 					{
-
-						System.out.println(overBook);
-						// 通过手机号码取出所有的数据
-						List<OverBook> subOverBookList = new ArrayList<OverBook>();
-						for(OverBook overBook2 : arrayList)
+						if(overBook.getCardNo().equals(overBook2.getCardNo()) && overBook.getLoanDate().equals(overBook2.getLoanDate()) && overBook.getReturnTime().equals(overBook2.getReturnTime()))
 						{
-							if(overBook.getPhone().equals(overBook2.getPhone()))
-							{
-								subOverBookList.add(overBook2);
-							}
+							subOverBookList.add(overBook2);
 						}
-						// 在这里处理短信发送
-						String smsText = "";
-						String loanDate = overBook.getLoanDate().trim();
-						String returnTime = overBook.getReturnTime().trim();
-						System.out.println("loanDate:"+loanDate.length());
-						if(loanDate.trim().length() == 8)
-							loanDate = loanDate.substring(0,4)+"年"+loanDate.substring(4,6)+"月"+loanDate.substring(6,8)+"日";
-						if(returnTime.length() == 8)
-							returnTime = returnTime.substring(0,4)+"年"+returnTime.substring(4,6)+"月"+returnTime.substring(6,8)+"日";
+					}
 
-						// 通过借书证号和手机号码，取出读者的openid
-						String openid = "";
-						String sql2 = "select openid from sys_user where reader_id = ? and phone = ?";
-						pst2 = conn2.prepareStatement(sql2);
-						pst2.setString(1, overBook.getCardNo());
-						pst2.setString(2, overBook.getPhone());
-						rs2 = pst2.executeQuery();
-						if(rs2.next())
+//					System.out.println("清理后的数据：");
+//					for(OverBook overBook2 : subOverBookList)
+//					{
+//						System.out.println(overBook2);
+//					}
+					// 在这里处理短信发送
+					String smsText = "";
+					String loanDate = overBook.getLoanDate().trim();
+					String returnTime = overBook.getReturnTime().trim();
+//						System.out.println("loanDate:"+loanDate.length());
+					if(loanDate.trim().length() == 8)
+						loanDate = loanDate.substring(0,4)+"年"+loanDate.substring(4,6)+"月"+loanDate.substring(6,8)+"日";
+					if(returnTime.length() == 8)
+						returnTime = returnTime.substring(0,4)+"年"+returnTime.substring(4,6)+"月"+returnTime.substring(6,8)+"日";
+
+					// 通过借书证号和手机号码，取出读者的openid
+					String openid = "";
+					String sql2 = "select openid from sys_user where reader_id = ?";
+					pst2 = conn2.prepareStatement(sql2);
+					pst2.setString(1, overBook.getCardNo());
+//						pst2.setString(2, overBook.getPhone());
+					rs2 = pst2.executeQuery();
+					if(rs2.next())
+					{
+						openid = rs2.getString("openid");
+						System.out.println("openid:"+openid);
+						openid = openid.trim();
+						if(subOverBookList.size() == 1 && StringUtils.isNotEmpty(openid) )
 						{
-							openid = rs2.getString("openid");
-						}
-						if(subOverBookList.size() == 1 && StringUtils.isNotEmpty(openid))
-						{
+//								smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
+//										+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-
 							System.out.println("发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime,overBook.getPhone());
+							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
 							System.out.println("发送模板消息："+check);
 						}
-						else if(StringUtils.isNotEmpty(openid))
+						else if(StringUtils.isNotEmpty(openid) )
 						{
 							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							System.out.println("11发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime,overBook.getPhone());
+							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
 							System.out.println("发送模板消息："+check);
 						}
 						else
 						{
-//							System.out.println("没有openid"+overBook.getPhone());
+							System.out.println("没有openid"+overBook);
 						}
+					}
+
 
 //						System.out.println("短信内容："+smsText);
 //						message = SendSms.SendSms(overBook.getPhone(), smsText);
 //						System.out.println(overBook.getPhone()+" : "+message);
-					}
-					System.out.println(" : "+list2.size());
 				}
+			}
+
 				System.out.println("success");
 //				String s = SendSms.SendSms("15007572525", new Date() + " sms already send!");
 //				System.out.println("管理员是否收到短信"+s);
 				// 今天的日期
 				String returnTime = new SimpleDateFormat("yyyy年MM月dd日").format(new Date());
-				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", "00000000", "已经成功发送", returnTime,"15007572525");
+				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", "00000000", "已经成功发送", returnTime);
 				System.out.println("发送模板消息："+check);
-			}
-			pst.close();
-			conn.close();
+				pst.close();
+				conn.close();
 		} catch (Exception e) {
 			System.out.print("循环体出现空异常："+e.toString());
 			e.printStackTrace();
@@ -323,8 +293,9 @@ public class Test {
 			throws IOException, ClassNotFoundException, SQLException {
 
 		System.out.println("开始执行");
-		Test test = new Test();
+		datatodata.Test test = new datatodata.Test();
 		test.testneww();
 
 	}
+
 }

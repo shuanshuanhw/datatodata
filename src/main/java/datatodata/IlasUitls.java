@@ -217,11 +217,11 @@ public class IlasUitls {
 //
                 .header(Header.AUTHORIZATION, "Basic U0QwMDEubGliOjE1OSMjc2QwMDE6YTMwZDkwYmM2Y2IwNDk0N2E0M2E5OGM0NzQ3MzJhOTk=")
                 .header(Header.CONTENT_TYPE, "text/html");
-        System.out.println("1");
-        System.out.println("3");
+//        System.out.println("1");
+//        System.out.println("3");
         String body = client.send(true);
 //        System.out.println(body);
-        System.out.println("2");
+//        System.out.println("2");
         JSONObject json = JSONUtil.parseFromXml(body);
 //        System.out.println(json);
         JSONObject soapenvEnvelope = (JSONObject) json.get("soapenv:Envelope");
@@ -244,7 +244,7 @@ public class IlasUitls {
         }
 //        System.out.println(ax21OverdueBooks);
 //        System.out.println(ax21OverdueBooks1);
-        System.out.println("3");
+//        System.out.println("3");
 //       // 存储过期图书信息列表
         List<IlasOverBook> ilasOverBooks = new ArrayList<>();
         if(ax21OverdueBooks1!=null)
@@ -283,7 +283,7 @@ public class IlasUitls {
             });
         }
 
-        System.out.println(ilasOverBooks);
+//        System.out.println(ilasOverBooks);
 
         return ilasOverBooks;
     }

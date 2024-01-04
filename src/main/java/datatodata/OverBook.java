@@ -12,6 +12,16 @@ public class OverBook {
     private String ReturnTime;
     private String Title;
     private String cardNo;
+    private String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public String getCardNo() {
         return cardNo;
@@ -60,12 +70,14 @@ public class OverBook {
                 ", LoanDate='" + LoanDate + '\'' +
                 ", ReturnTime='" + ReturnTime + '\'' +
                 ", Title='" + Title + '\'' +
+                ", cardNo='" + cardNo + '\'' +
+                ", name='" + name + '\'' +
                 '}';
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(this.getPhone().equals(((OverBook)obj).getPhone()) && this.getLoanDate().equals(((OverBook)obj).getLoanDate()) && this.getReturnTime().equals(((OverBook)obj).getReturnTime()))
+        if(this.getCardNo().equals(((OverBook)obj).getCardNo())  && this.getLoanDate().equals(((OverBook)obj).getLoanDate()) && this.getReturnTime().equals(((OverBook)obj).getReturnTime()))
         {
             return true;
         }

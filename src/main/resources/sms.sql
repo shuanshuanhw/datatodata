@@ -29,5 +29,6 @@ create table sms1
     readerInfo char(255) not null,
     readerInfoResponse char(255) not null,
     readerInfo2 char(255) not null,
-    readerName char(255) not null
+    readerName char(255) not null,
+    default_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )engine=Innodb default charset=utf8 COMMENT='信息发送表1';
