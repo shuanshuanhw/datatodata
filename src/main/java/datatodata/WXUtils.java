@@ -18,7 +18,7 @@ public class WXUtils {
     }
 
     // 发送模板消息，读者借阅文献滞留通知 读者证号 文献题名 应还日期 咨询电话
-    public static boolean sendTemplateMessage(String openId,String templateId,String readerId,String title,String returnDate)
+    public static boolean sendTemplateMessage(String openId,String templateId,String name,String readerId,String title,String returnDate)
     {
         try
         {
@@ -29,15 +29,18 @@ public class WXUtils {
             map.set("touser", openId);
             map.set("template_id", templateId);
             JSONObject data = new JSONObject();
+            JSONObject keyword0 = new JSONObject();
             JSONObject keyword1 = new JSONObject();
             JSONObject keyword2 = new JSONObject();
             JSONObject keyword3 = new JSONObject();
             JSONObject keyword4 = new JSONObject();
+            keyword0.set("value", name);
             keyword1.set("value", readerId);
             keyword2.set("value", title);
             keyword3.set("value", returnDate);
             keyword4.set("value", "22808600");
 
+            data.set("thing7", keyword0);
             data.set("character_string1", keyword1);
             data.set("thing2", keyword2);
             data.set("time6", keyword3);

@@ -72,13 +72,13 @@ public class Test {
 			// 显示读者信息
 
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
-					"SD011", "SD012", "DX001","NH001" }; // 图书馆代码
+					"SD011", "SD012", "DX001" }; // 图书馆代码
 
 			for(String lib:libids)
 			{
 				HashSet<OverBook> list = new HashSet();
 				ArrayList<OverBook> arrayList = new ArrayList<OverBook>();
-				int overdueDays = -365; // 过期天数参数Test
+				int overdueDays = -5; // 过期天数参数Test
 				int page = 0; // 页码
 				int pageSize = 500; // 每页请求数量
 				List<IlasOverBook> sd002 = new ArrayList<>();
@@ -115,21 +115,21 @@ public class Test {
 					if(readerName==null)readerName="";
 
 					// 处理title的敏感信息
-					if(Title.length() <= 1) {
-						Title = Title;
-					}
-					else if(Title.length() == 2) {
-						Title = Title.substring(0, 1) + "*";
-					}
-					else if(Title.length() == 3) {
-						Title = Title.substring(0, 1) + "*" + Title.substring(2, 3);
-					}
-					else if(Title.length() == 4) {
-						Title = Title.substring(0, 1) + "**" + Title.substring(3, Title.length());
-					}
-					else if(Title.length() >= 5) {
-						Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
-					}
+//					if(Title.length() <= 1) {
+//						Title = Title;
+//					}
+//					else if(Title.length() == 2) {
+//						Title = Title.substring(0, 1) + "*";
+//					}
+//					else if(Title.length() == 3) {
+//						Title = Title.substring(0, 1) + "*" + Title.substring(2, 3);
+//					}
+//					else if(Title.length() == 4) {
+//						Title = Title.substring(0, 1) + "**" + Title.substring(3, Title.length());
+//					}
+//					else if(Title.length() >= 5) {
+//						Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
+//					}
 
 					if(phone==null)phone="";
 
@@ -225,18 +225,18 @@ public class Test {
 						{
 //								smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
 //										+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
-							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
+							smsText = "尊敬的读者，"+subOverBookList.get(0).getName()+"您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							System.out.println("发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
+							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", subOverBookList.get(0).getName(),subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
 							System.out.println("发送模板消息："+check);
 						}
-						else if(StringUtils.isNotEmpty(openid) )
+						else if(StringUtils.isNotEmpty(openid))
 						{
-							smsText = "尊敬的读者，您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
+							smsText = "尊敬的读者，"+subOverBookList.get(0).getName()+"您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							System.out.println("11发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
+							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
 							System.out.println("发送模板消息："+check);
 						}
 						else
@@ -257,7 +257,7 @@ public class Test {
 //				System.out.println("管理员是否收到短信"+s);
 				// 今天的日期
 				String returnTime = new SimpleDateFormat("yyyy年MM月dd日").format(new Date());
-				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3Tw_8K-GQ9L5SE0-17lEwiwpk", "00000000", "已经成功发送", returnTime);
+				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "黄维","00000000", "已经成功发送", returnTime);
 				System.out.println("发送模板消息："+check);
 				pst.close();
 				conn.close();
