@@ -1,16 +1,9 @@
 package datatodata;
 
 
-import com.ilas.entity.xsd.OverdueBooks;
-import com.ilas.entity.xsd.OverdueResult;
-import com.ilas.webservice.services.impl.QueryOverdueBooks;
-import com.ilas.webservice.services.impl.QueryOverdueBooksResponse;
 import com.ilas.webservice.services.impl.ServiceServerStub;
 import datatodata.entity.ilas.IlasOverBook;
 import datatodata.entity.ilas.IlasUser;
-import datatodata.entity.ov.OverdueBookOV;
-import datatodata.entity.ov.OverdueBookOVStatus;
-import datatodata.entity.ov.ReaderAuthOV;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -22,12 +15,15 @@ import java.net.URL;
 import java.rmi.RemoteException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.Date;
+import java.util.*;
 
-
-// 新的ilas接口json
-public class Test {
+/**
+ * 功能： <p>旧的ilas服务接口的版本</p>
+ * 创建人：黄维
+ * 时间：2024/1/26 10:25
+ */
+public class Test20240126 {
 
 	public void testneww() throws RemoteException, ClassNotFoundException, SQLException, MalformedURLException {
 
@@ -79,29 +75,24 @@ public class Test {
 			String[] libids = { "SD001", "SD002", "SD003", "SD005", "SD006", "SD007", "SD008", "SD009", "SD010",
 					"SD011", "SD012", "DX001" }; // 图书馆代码
 
-			IlasUtilsJson ilasUtilsJson = new IlasUtilsJson();
 			for(String lib:libids)
 			{
 				HashSet<OverBook> list = new HashSet();
 				ArrayList<OverBook> arrayList = new ArrayList<OverBook>();
-				String overdueDays = "-5"; // 过期天数参数Test
-				String page = "0"; // 页码
-				String pageSize = "500"; // 每页请求数量
-//				List<IlasOverBook> sd002 = new ArrayList<>();
-//				List<IlasOverBook> sd001 = new ArrayList<>();
-//				do{
-//					sd001 = IlasUitls.queryOverdueBooks(lib, overdueDays, page, pageSize);
-//					sd002.addAll(sd001);
-//					page++;
-//				}while (sd001.size() == pageSize);
-
-				OverdueBookOVStatus overdueBookOVStatus = ilasUtilsJson.queryOverdueBooks(lib, overdueDays, page, pageSize);
-				List<OverdueBookOV> datas = overdueBookOVStatus.getDatas();
-
+				int overdueDays = -5; // 过期天数参数Test
+				int page = 0; // 页码
+				int pageSize = 500; // 每页请求数量
+				List<IlasOverBook> sd002 = new ArrayList<>();
+				List<IlasOverBook> sd001 = new ArrayList<>();
+				do{
+					sd001 = IlasUitls.queryOverdueBooks(lib, overdueDays, page, pageSize);
+					sd002.addAll(sd001);
+					page++;
+				}while (sd001.size() == pageSize);
 				// 显示结果
-				System.out.println("总数：" + datas.size());// 总数
+				System.out.println("总数：" + sd002.size());// 总数
 
-				for(OverdueBookOV overdueBooks2 :datas)
+				for(IlasOverBook overdueBooks2 :sd002)
 				{
 //					System.out.println(overdueBooks2.getPhone()+" "+overdueBooks2.getTitle()+" "+overdueBooks2.getReturnTime()+" "+overdueBooks2.getLoanDate()+" "+overdueBooks2.getIdentifier());
 
@@ -120,7 +111,6 @@ public class Test {
 					if(LoanDate==null)LoanDate="";
 					if(ReturnTime==null)ReturnTime="";
 					if(Title==null)Title="";
-					if(title==null)title="";
 					if(LoanCount==null)LoanCount="";
 					if(cardno==null)cardno="";
 					if(readerName==null)readerName="";
@@ -154,9 +144,9 @@ public class Test {
 					overBook.setCardNo(cardno);
 
 					// 根据书证号查询读者信息
-					ReaderAuthOV readerAuthOV = ilasUtilsJson.queryReaderInfo(cardno);
+					IlasUser ilasUser = IlasUitls.queryReaderInfo(cardno, "", "");
 //		            System.out.println(ilasUser.getPatronName());
-					overBook.setName(readerAuthOV.getRdrName());
+					overBook.setName(ilasUser.getPatronName());
 					list.add(overBook);
 					arrayList.add(overBook);
 
@@ -172,16 +162,16 @@ public class Test {
 					pst.setString(9, "");
 					pst.setString(10, "");
 					pst.setString(11, "");
-					pst.setString(12, readerAuthOV.getRdrName());
+					pst.setString(12, ilasUser.getPatronName());
 					pst.executeUpdate();
 
 					String identifier = overdueBooks2.getIdentifier();
 					// 根据书证号查询读者信息
 //					IlasUser ilasUser = IlasUitls.queryReaderInfo(identifier, "", "");
-		            System.out.println(readerAuthOV.getRdrName());
+		            System.out.println(ilasUser.getPatronName());
 					System.out.println(overdueBooks2.getPhone()+overdueBooks2.getTitle()+overdueBooks2.getLoanDate()+overdueBooks2.getReturnTime()+overdueBooks2.getIdentifier());
 				}
-				System.out.println("datas.size()"+datas.size());
+				System.out.println("sd002.size()"+sd002.size());
 
 				System.out.println("去重前有" + list.size() + "条数据");
 				// 显示list
@@ -284,7 +274,7 @@ public class Test {
 			InputStream in = null;
 			try {
 				// 开发环境读取
-				URL url = Test.class.getClassLoader().getResource("datasource.properties");
+				URL url = Test20240126.class.getClassLoader().getResource("datasource.properties");
 				File file = new File(url.getFile());
 				in = new FileInputStream(file);
 			} catch (Exception e) {
@@ -304,7 +294,7 @@ public class Test {
 			throws IOException, ClassNotFoundException, SQLException {
 
 		System.out.println("开始执行");
-		datatodata.Test test = new datatodata.Test();
+		Test20240126 test = new Test20240126();
 		test.testneww();
 
 	}

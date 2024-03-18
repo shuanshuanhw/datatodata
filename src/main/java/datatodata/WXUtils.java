@@ -61,7 +61,7 @@ public class WXUtils {
 //            System.out.println(execute);
             System.out.println("发送状态："+execute.getStatus());
             JSONObject jsonObject = JSONUtil.parseObj(execute.body());
-//            System.out.println(jsonObject);
+            System.out.println(jsonObject);
 
             return true;
         }catch (Exception e)

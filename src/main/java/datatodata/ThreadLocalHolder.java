@@ -42,6 +42,7 @@ public class ThreadLocalHolder {
         HttpResponse execute = HttpRequest.get("https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx067c77c0807c631f&secret=18847f1bdeb85293f2f335ed04eb9fdb").execute();
         cn.hutool.json.JSONObject body = JSONUtil.parseObj(execute.body());
         String errmsg = (String)body.get("errmsg");
+        System.out.println("errmsg:"+errmsg);
         String access_token = null;
         int expires_in = 0;
         if(StringUtils.isEmpty(errmsg))
