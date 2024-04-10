@@ -47,6 +47,13 @@ public class Test {
 
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
 				"651392qQ");//  获取连接
+
+		// 用来插入消息发送明细
+		Connection conn3 = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
+				"651392qQ");//  获取连接
+		String sql3 = "insert into sended_message(openid,card_no,LoanDate,true_name,return_time,title) values(?,?,?,?,?,?)";
+		PreparedStatement ps3 = conn3.prepareStatement(sql3);
+
 		String sql = "INSERT INTO sms1(BarCode,Callno,LoanDate,Phone,ReturnTime,Title,LoanCount,Cardno,readerInfo,readerInfoResponse,readerInfo2,readerName) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 		pst = conn.prepareStatement(sql);// 准备执行语句
 
@@ -241,6 +248,14 @@ public class Test {
 							System.out.println("发送短信："+smsText);
 							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", subOverBookList.get(0).getName(),subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
 							System.out.println("发送模板消息："+check);
+							ps3.setString(1,openid);
+							ps3.setString(2,subOverBookList.get(0).getCardNo());
+							ps3.setString(3,loanDate);
+							ps3.setString(4,"");
+							ps3.setString(5,returnTime);
+							ps3.setString(6,subOverBookList.get(0).getTitle());
+							int i = ps3.executeUpdate();
+							System.out.printf("成功插入%d条",i);
 						}
 						else if(StringUtils.isNotEmpty(openid))
 						{
@@ -249,6 +264,14 @@ public class Test {
 							System.out.println("11发送短信："+smsText);
 							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
 							System.out.println("发送模板消息："+check);
+							ps3.setString(1,openid);
+							ps3.setString(2,subOverBookList.get(0).getCardNo());
+							ps3.setString(3,loanDate);
+							ps3.setString(4,"");
+							ps3.setString(5,returnTime);
+							ps3.setString(6,subOverBookList.get(0).getTitle());
+							int i = ps3.executeUpdate();
+							System.out.printf("成功插入%d条",i);
 						}
 						else
 						{
@@ -271,7 +294,9 @@ public class Test {
 				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "黄维","00000000", "已经成功发送", returnTime);
 				System.out.println("发送模板消息："+check);
 				pst.close();
+				ps3.close();
 				conn.close();
+				conn3.close();
 		} catch (Exception e) {
 			System.out.print("循环体出现空异常："+e.toString());
 			e.printStackTrace();
