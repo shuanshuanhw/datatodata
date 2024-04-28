@@ -32,3 +32,16 @@ create table sms1
     readerName char(255) not null,
     default_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )engine=Innodb default charset=utf8 COMMENT='信息发送表1';
+
+
+DROP TABLE IF EXISTS sended_message;
+create table sended_message(
+    id int primary key auto_increment,
+    openid varchar(255),
+    card_no varchar(255),
+    LoanDate varchar(255),
+    true_name varchar(255),
+    return_time varchar(255),
+    title varchar(255),
+    default_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+)engine=Innodb default charset=utf8 COMMENT='文献催还发送成功给读者的消息明细';

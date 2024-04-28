@@ -17,4 +17,8 @@ public class UserInfo {
 		return this.url;
 	}
 
+
+	public static void main(String[] args) {
+		System.out.println("2222222222222222");
+	}
 }

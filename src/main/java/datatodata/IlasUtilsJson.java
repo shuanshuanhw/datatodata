@@ -34,7 +34,7 @@ public class IlasUtilsJson {
     {
         this.times = System.currentTimeMillis();
         this.timestamp = String.valueOf(this.times);
-        this.sn = sn=EncryptSha256Util.getSha256Str(this.timestamp+this.Passtoken+this.nonce+this.passid+this.Passtoken+this.timestamp);
+        this.sn = EncryptSha256Util.getSha256Str(this.timestamp+this.Passtoken+this.nonce+this.passid+this.Passtoken+this.timestamp);
 
     }
 

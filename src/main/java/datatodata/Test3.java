@@ -28,7 +28,10 @@ public class Test3 {
 				"651392qQ");//  获取连接
 		String sql = "INSERT INTO sms(BarCode,Callno,LoanDate,Phone,ReturnTime,Title,LoanCount,Cardno,readerInfo,readerInfoResponse,readerInfo2,readerName) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)";
 		pst = conn.prepareStatement(sql);// 准备执行语句
-
+		// 打印所有属性
+		// 加法运算
+		// 显示
+		
 		String readerName = "";
 		String phone = "";
 		String sh_txtx="";
