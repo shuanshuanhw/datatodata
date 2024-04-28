@@ -22,18 +22,17 @@ import java.util.Map;
  */
 public class IlasUtilsJson {
 
-    private String Passtoken = "C7974CBB09F34A02816F96533D936EA2SD001";
-    private String appid = " SD00102";
-    private String passid = "SD001";
-    private String nonce = "111555";
-    private long times = 0L;
+    final private String Passtoken = "C7974CBB09F34A02816F96533D936EA2SD001";
+    final private String appid = " SD00102";
+    final private String passid = "SD001";
+    final private String nonce = "111555";
     private String timestamp = "";
     private String sn="";
     // 取时间戳
     private void getTimestamp()
     {
-        this.times = System.currentTimeMillis();
-        this.timestamp = String.valueOf(this.times);
+        long times = System.currentTimeMillis();
+        this.timestamp = String.valueOf(times);
         this.sn = EncryptSha256Util.getSha256Str(this.timestamp+this.Passtoken+this.nonce+this.passid+this.Passtoken+this.timestamp);
 
     }
@@ -41,7 +40,7 @@ public class IlasUtilsJson {
 
     public OverdueBookOVStatus queryOverdueBooks(String libcode, String days, String page, String pageSize)
     {
-        OverdueBookOVStatus sd002 = null;
+        OverdueBookOVStatus sd002;
         List<OverdueBookOV> list = new ArrayList<>();
         do{
             sd002 = queryOverdueBook(libcode, days, page, pageSize);
@@ -108,7 +107,7 @@ public class IlasUtilsJson {
         httpRequest.header("sn",this.sn);
         httpRequest.header("nonce",this.nonce);
         httpRequest.header("appid",this.appid);
-        Map<String,Object> paramMap = new HashMap();
+        Map<String,String> paramMap = new HashMap<>();
         // 如果identifier是读者证号，那么idType=0，如果是身份证号，那么idType=1
         if(identifier.length()==10)
         {
@@ -122,6 +121,7 @@ public class IlasUtilsJson {
         paramMap.put("password",password);
 
         JSONObject jsonObject = new JSONObject(paramMap);
+
         httpRequest.body(jsonObject.toString());
 
         HttpResponse execute = httpRequest.execute();
@@ -169,7 +169,7 @@ public class IlasUtilsJson {
         JSONObject json = JSONUtil.parseObj(body);
 
         String code = json.get("code").toString();
-        String message = json.get("message").toString();
+//        String message = json.get("message").toString();
         if("1".equals(code))
         {
             Object data = json.get("data");
