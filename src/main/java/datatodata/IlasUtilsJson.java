@@ -155,6 +155,7 @@ public class IlasUtilsJson {
     {
         // 取当前服务器的时间戳
         getTimestamp();
+        System.out.println("identifier:"+identifier);
         HttpRequest httpRequest = HttpRequest.get("http://202.105.30.27:6082/onlineLoan/webservice/queryReaderInfo?identifier="+identifier);
         httpRequest.contentType("application/json");
         httpRequest.header("passid",this.passid);
@@ -163,9 +164,13 @@ public class IlasUtilsJson {
         httpRequest.header("sn",this.sn);
         httpRequest.header("nonce",this.nonce);
         httpRequest.header("appid",this.appid);
-
+        httpRequest.timeout(20000);
+//        httpRequest.setConnectionTimeout(10000000);
+//        httpRequest.setReadTimeout(10000000);
         HttpResponse execute = httpRequest.execute();
+
         String body = execute.body();
+        System.out.println("bopdy");
         JSONObject json = JSONUtil.parseObj(body);
 
         String code = json.get("code").toString();
@@ -174,8 +179,8 @@ public class IlasUtilsJson {
         {
             Object data = json.get("data");
             JSONObject jsonObject = JSONUtil.parseObj(data);
-            String patronIdentifier = jsonObject.get("patronIdentifier").toString();
-            String patronName = jsonObject.get("patronName").toString();
+            String patronIdentifier = jsonObject.get("patronIdentifier")==null?"":jsonObject.get("patronIdentifier").toString();
+            String patronName = jsonObject.get("patronName")==null?"":jsonObject.get("patronName").toString();
             System.out.println("查询成功");
             ReaderAuthOV readerAuthOV = new ReaderAuthOV();
             readerAuthOV.setCardNo(patronIdentifier);
@@ -197,9 +202,9 @@ public class IlasUtilsJson {
 //        System.out.println(readerAuthOV);
 
 
-        OverdueBookOVStatus sd001 = ilasUtilsJson.queryOverdueBooks("SD001", "-5", "1", "500");
-        System.out.println(sd001);
-        ReaderAuthOV readerAuthOV = ilasUtilsJson.queryReaderInfo("9130100100");
-        System.out.println(readerAuthOV);
+//        OverdueBookOVStatus sd001 = ilasUtilsJson.queryOverdueBooks("SD001", "-5", "1", "500");
+//        System.out.println(sd001);
+        ReaderAuthOV readerAuthOV = ilasUtilsJson.queryReaderInfo("9600121509");
+        System.out.println(readerAuthOV.getRdrName());
     }
 }
