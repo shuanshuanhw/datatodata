@@ -7,5 +7,11 @@
       <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/sms</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="wxpublic@localhost" uuid="d636091e-9b61-44cf-9696-f3ccc86b52d6">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://localhost:3306/wxpublic</jdbc-url>
+    </data-source>
   </component>
 </project>

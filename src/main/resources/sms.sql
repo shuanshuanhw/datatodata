@@ -45,3 +45,21 @@ create table sended_message(
     title varchar(255),
     default_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 )engine=Innodb default charset=utf8 COMMENT='文献催还发送成功给读者的消息明细';
+
+alter table sended_message modify column title text;
+
+DROP TABLE IF EXISTS date_if_sended;
+create table date_if_sended(
+    id int primary key auto_increment,
+    if_del char(1) default '0',
+    default_time TIMESTAMP not null default current_timestamp
+)engine=Innodb default charset=utf8 comment ='是否已经发过了';
+
+drop table if exists log_exception;
+create table log_exception(
+    id int primary key auto_increment,
+    exception_name varchar(100),
+    exception_introduce varchar(100),
+    exception_txt BLOB,
+        default_time TIMESTAMP not null default current_timestamp
+)engine=Innodb default charset=utf8 comment ='如果有异常，记录在这个日志里';

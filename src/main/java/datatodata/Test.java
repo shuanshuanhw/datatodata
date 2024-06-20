@@ -2,15 +2,14 @@ package datatodata;
 
 
 import com.ilas.webservice.services.impl.ServiceServerStub;
+import com.mysql.cj.jdbc.Blob;
 import datatodata.entity.ov.OverdueBookOV;
 import datatodata.entity.ov.OverdueBookOVStatus;
 import datatodata.entity.ov.ReaderAuthOV;
+import org.apache.axis2.AxisFault;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.rmi.RemoteException;
@@ -23,21 +22,47 @@ import java.util.*;
 // 新的ilas接口json
 public class Test {
 
-	public void testneww() throws RemoteException, ClassNotFoundException, SQLException, MalformedURLException {
+	public void testneww() throws SQLException {
 
 		//Properties pro = Test.getProperties();
 
 
 		Connection conn = null;
 		PreparedStatement pst = null;
-		Class.forName("com.mysql.cj.jdbc.Driver");// 指定连接类型
+		try {
+			Class.forName("com.mysql.cj.jdbc.Driver");// 指定连接类型
+		} catch (ClassNotFoundException ex) {
+			ex.printStackTrace();
+			System.out.println("MYSQL驱动找不到 出现了错误");
+		}
 //		Class.forName("com.mysql.jdbc.Driver");// 指定连接类型
 
+		// connect to date_if_sended and log_exception
+		Connection connection_date_if_sended = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
+				"651392qQ");
+		PreparedStatement ps_date_if_sended = null;
+		String sql_date_if_sended = "insert into date_if_sended(if_del) values(?)";
+		ps_date_if_sended = connection_date_if_sended.prepareStatement(sql_date_if_sended);
+		// 开始启动，在这里插入数据库的date_if_sended表
+		ps_date_if_sended.setString(1,"0");
+		int execute = ps_date_if_sended.executeUpdate();
+		if(execute == 1) System.out.println("是否已经启动催还消息发送程序 成功。");
+		else System.out.println("是否已经启动催还消息发送程序 失败 插入数据库多少行："+execute);
+
+
+
+		Connection connection_log_exception = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
+				"651392qQ");
+		PreparedStatement ps_log_exception = null;
+		String sql_log_exception = "insert into log_exception(exception_name,exception_introduce,exception_txt) values(?,?,?)";
+		ps_log_exception = connection_log_exception.prepareStatement(sql_log_exception);
 		// 连接用户的数据库
 		Connection conn2 = DriverManager.getConnection("jdbc:mysql://localhost:3306/wxpublic?useUnicode=true&characterEncoding=utf8", "root",
 				"651392qQ");
 		PreparedStatement pst2 = null;
 		ResultSet rs2 = null;
+
+
 
 		conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/sms?useUnicode=true&characterEncoding=utf8", "root",
 				"651392qQ");//  获取连接
@@ -63,9 +88,28 @@ public class Test {
 		
 		String sh_txtx="";
 		String message = "未发送";
-		URL wsdlLocation = new URL("http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
+//		URL wsdlLocation = new URL("http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
 //		ServiceServer serverStub = new ServiceServer(wsdlLocation);
-		ServiceServerStub serverStub = new ServiceServerStub("http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
+		try {
+			ServiceServerStub serverStub = new ServiceServerStub("http://202.105.30.27:6086/ilasWebservice/services/ServiceServer?wsdl");
+		} catch (AxisFault axisFault) {
+			axisFault.printStackTrace();
+			System.out.println("在ilas连接时出现了错误");
+			StringWriter sw = new StringWriter();
+			axisFault.printStackTrace( new PrintWriter(sw, true));
+
+			ByteArrayInputStream txt = new ByteArrayInputStream(sw.getBuffer().toString().getBytes());
+			ps_log_exception.setString(1,"在ilas连接时出现了错误");
+			ps_log_exception.setString(2,axisFault.getMessage());
+			ps_log_exception.setBlob(3, txt);
+
+			int resultNumber = ps_log_exception.executeUpdate();
+			if(resultNumber == 1) System.out.println("在ilas连接时出现了错误 异常插入数据库 成功");
+			else
+				System.out.println("在ilas连接时出现了错误 异常插入数据库 失败");
+
+			return;
+		}
 
 		// 调用查询过期文献接口
 		// 查询读者信息
@@ -104,6 +148,7 @@ public class Test {
 					// 显示结果
 					System.out.println("总数：" + datas.size());// 总数
 
+
 					for (OverdueBookOV overdueBooks2 : datas) {
 //					System.out.println(overdueBooks2.getPhone()+" "+overdueBooks2.getTitle()+" "+overdueBooks2.getReturnTime()+" "+overdueBooks2.getLoanDate()+" "+overdueBooks2.getIdentifier());
 
@@ -127,22 +172,6 @@ public class Test {
 						if (cardno == null) cardno = "";
 						if (readerName == null) readerName = "";
 
-						// 处理title的敏感信息
-//					if(Title.length() <= 1) {
-//						Title = Title;
-//					}
-//					else if(Title.length() == 2) {
-//						Title = Title.substring(0, 1) + "*";
-//					}
-//					else if(Title.length() == 3) {
-//						Title = Title.substring(0, 1) + "*" + Title.substring(2, 3);
-//					}
-//					else if(Title.length() == 4) {
-//						Title = Title.substring(0, 1) + "**" + Title.substring(3, Title.length());
-//					}
-//					else if(Title.length() >= 5) {
-//						Title = Title.substring(0, 1) + "***" + Title.substring(Title.length()-2, Title.length());
-//					}
 
 						if (phone == null) phone = "";
 
@@ -156,9 +185,6 @@ public class Test {
 						overBook.setCardNo(cardno);
 
 						// 根据书证号查询读者信息
-//						ReaderAuthOV readerAuthOV = ilasUtilsJson.queryReaderInfo(cardno);
-//		            System.out.println(ilasUser.getPatronName());
-//						overBook.setName(readerAuthOV.getRdrName());
 						list.add(overBook);
 						arrayList.add(overBook);
 
@@ -195,6 +221,17 @@ public class Test {
 				{
 					ex.printStackTrace();
 					System.out.println("第一部分出现错误");
+					StringWriter sw = new StringWriter();
+					ex.printStackTrace( new PrintWriter(sw, true));
+
+					ByteArrayInputStream txt = new ByteArrayInputStream(sw.getBuffer().toString().getBytes());
+					ps_log_exception.setString(1,"第一部分出现错误");
+					ps_log_exception.setString(2,ex.getMessage());
+					ps_log_exception.setBlob(3, txt);
+					int resultNumber = ps_log_exception.executeUpdate();
+					if(resultNumber == 1) System.out.println("第一部分异常插入数据库 成功");
+					else
+						System.out.println("第一部分异常插入数据库 失败");
 					return;
 				}
 // 这里显示去重后有多少数据
@@ -210,11 +247,6 @@ public class Test {
 							}
 						}
 
-//					System.out.println("清理后的数据：");
-//					for(OverBook overBook2 : subOverBookList)
-//					{
-//						System.out.println(overBook2);
-//					}
 						// 在这里处理短信发送
 						String smsText = "";
 						String loanDate = overBook.getLoanDate().trim();
@@ -256,6 +288,18 @@ public class Test {
 								smsText = "尊敬的读者，您于 " + loanDate + " 所借书刊 " + subOverBookList.get(0).getTitle() + "等" + subOverBookList.size() + "本 将于 "
 										+ returnTime + " 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 								System.out.println("11发送短信：" + smsText);
+								String titleString;
+								if(subOverBookList.size() == 0 || subOverBookList == null)
+								{
+									titleString = "";
+								}
+								else
+								{
+									String overBookString = subOverBookList.parallelStream().collect(() -> new StringBuffer(), (a, b) -> a.append(b + ","), (a, b) -> a.append(b)).toString();
+									String subOverBookString = overBookString.substring(0, overBookString.lastIndexOf(","));
+									titleString = subOverBookString;
+								}
+
 //							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
 //							System.out.println("发送模板消息："+check);
 								ps3.setString(1, openid);
@@ -263,24 +307,32 @@ public class Test {
 								ps3.setString(3, loanDate);
 								ps3.setString(4, "");
 								ps3.setString(5, returnTime);
-								ps3.setString(6, subOverBookList.get(0).getTitle());
+								ps3.setString(6, titleString);
 								int i = ps3.executeUpdate();
 								System.out.printf("成功插入%d条", i);
 							} else {
 								System.out.println("没有openid" + overBook);
 							}
 						}
-
-
-//						System.out.println("短信内容："+smsText);
-//						message = SendSms.SendSms(overBook.getPhone(), smsText);
-//						System.out.println(overBook.getPhone()+" : "+message);
 					}
 				}
-				catch (Exception exc)
+				catch (Exception ex)
 				{
-					exc.printStackTrace();
+					ex.printStackTrace();
 					System.out.println("第二部分出现错误");
+
+					StringWriter sw = new StringWriter();
+					ex.printStackTrace( new PrintWriter(sw, true));
+
+					ByteArrayInputStream txt = new ByteArrayInputStream(sw.getBuffer().toString().getBytes());
+					ps_log_exception.setString(1,"第二部分出现错误");
+					ps_log_exception.setString(2,ex.getMessage());
+					ps_log_exception.setBlob(3, txt);
+
+					int resultNumber = ps_log_exception.executeUpdate();
+					if(resultNumber == 1) System.out.println("第二部分异常插入数据库 成功");
+					else
+						System.out.println("第二部分异常插入数据库 失败");
 					return;
 				}
 			}
@@ -297,9 +349,26 @@ public class Test {
 				ps3.close();
 				conn.close();
 				conn3.close();
-		} catch (Exception e) {
-			System.out.print("循环体出现空异常："+e.toString());
-			e.printStackTrace();
+				connection_date_if_sended.close();
+				connection_log_exception.close();
+		} catch (Exception ex) {
+
+				ex.printStackTrace();
+				System.out.print("循环体出现空异常："+ex.toString());
+				StringWriter sw = new StringWriter();
+				ex.printStackTrace( new PrintWriter(sw, true));
+
+				ByteArrayInputStream txt = new ByteArrayInputStream(sw.getBuffer().toString().getBytes());
+				ps_log_exception.setString(1,"循环体出现空异常");
+				ps_log_exception.setString(2,ex.getMessage());
+				ps_log_exception.setBlob(3, txt);
+
+				int resultNumber = ps_log_exception.executeUpdate();
+				if(resultNumber == 1) System.out.println("第三部分异常插入数据库 成功");
+				else
+					System.out.println("第三部分异常插入数据库 失败");
+
+
 			return;
 		}
 	}
