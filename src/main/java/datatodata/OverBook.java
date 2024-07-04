@@ -1,5 +1,9 @@
 package datatodata;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * 功能： <p></p>
  * 创建人：黄维
@@ -13,7 +17,15 @@ public class OverBook {
     private String Title;
     private String cardNo;
     private String name;
+    private String barCode;// 书的唯一编码，可以用来分别不同的书
 
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
 
     public String getName() {
         return name;
@@ -72,12 +84,13 @@ public class OverBook {
                 ", Title='" + Title + '\'' +
                 ", cardNo='" + cardNo + '\'' +
                 ", name='" + name + '\'' +
+                ", barCode='" + barCode + '\'' +
                 '}';
     }
 
     @Override
     public boolean equals(Object obj) {
-        if(this.getCardNo().equals(((OverBook)obj).getCardNo())  && this.getLoanDate().equals(((OverBook)obj).getLoanDate()) && this.getReturnTime().equals(((OverBook)obj).getReturnTime()))
+        if(this.getBarCode().equals(((OverBook)obj).getBarCode()))
         {
             return true;
         }
@@ -87,5 +100,40 @@ public class OverBook {
     @Override
     public int hashCode() {
         return 1;
+    }
+
+    public static void main(String[] args) {
+        OverBook overBook = new OverBook();
+        overBook.setName("huangwei");
+        overBook.setPhone("150075725254444");
+        overBook.setBarCode("aaa5");
+
+        OverBook overBook2 = new OverBook();
+        overBook2.setName("huangwei");
+        overBook2.setPhone("15007572525");
+        overBook2.setBarCode("aaa");
+
+        OverBook overBook3 = new OverBook();
+        overBook3.setName("huangwei");
+        overBook3.setPhone("15007572525");
+        overBook3.setBarCode("aaa");
+
+        OverBook overBook4 = new OverBook();
+        overBook4.setName("huangwei");
+        overBook4.setPhone("15007572525");
+        overBook4.setBarCode("aaa");
+
+        List<OverBook> newList = new ArrayList<>();
+        newList.add(overBook);
+        newList.add(overBook2);
+        newList.add(overBook3);
+        newList.add(overBook4);
+
+        List<OverBook> newList2 = newList.stream().distinct().collect(Collectors.toList());
+        newList.clear();
+        newList.addAll(newList);
+
+        System.out.println(newList2);
+
     }
 }
