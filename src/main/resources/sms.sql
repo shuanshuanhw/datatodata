@@ -47,6 +47,8 @@ create table sended_message(
 )engine=Innodb default charset=utf8 COMMENT='文献催还发送成功给读者的消息明细';
 
 alter table sended_message modify column title text;
+ALTER TABLE sended_message ADD COLUMN status varchar(100) NULL;
+
 
 DROP TABLE IF EXISTS date_if_sended;
 create table date_if_sended(

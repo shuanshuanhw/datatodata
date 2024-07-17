@@ -229,7 +229,7 @@ public class Test20240126 {
 							smsText = "尊敬的读者，"+subOverBookList.get(0).getName()+"您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+" 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							System.out.println("发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", subOverBookList.get(0).getName(),subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
+							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", subOverBookList.get(0).getName(),subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
 							System.out.println("发送模板消息："+check);
 						}
 						else if(StringUtils.isNotEmpty(openid))
@@ -237,7 +237,7 @@ public class Test20240126 {
 							smsText = "尊敬的读者，"+subOverBookList.get(0).getName()+"您于 "+loanDate+" 所借书刊 "+subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本 将于 "
 									+returnTime+" 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
 							System.out.println("11发送短信："+smsText);
-							boolean check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
+							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
 							System.out.println("发送模板消息："+check);
 						}
 						else
@@ -258,7 +258,7 @@ public class Test20240126 {
 //				System.out.println("管理员是否收到短信"+s);
 				// 今天的日期
 				String returnTime = new SimpleDateFormat("yyyy年MM月dd日").format(new Date());
-				boolean check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "黄维","00000000", "已经成功发送", returnTime);
+				int check = WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "黄维","00000000", "已经成功发送", returnTime);
 				System.out.println("发送模板消息："+check);
 				pst.close();
 				conn.close();

@@ -28,10 +28,8 @@ public class WXUtils {
         return false;
     }
     // 发送模板消息，读者借阅文献滞留通知 读者证号 文献题名 应还日期 咨询电话
-    public static boolean sendTemplateMessage(String openId,String templateId,String name,String readerId,String title,String returnDate)
+    public static int sendTemplateMessage(String openId,String templateId,String name,String readerId,String title,String returnDate)
     {
-        try
-        {
             String accessToken = ThreadLocalHolder.getAccessToken();
             // 显示
             System.out.println("accessToken:"+accessToken);
@@ -73,12 +71,7 @@ public class WXUtils {
             JSONObject jsonObject = JSONUtil.parseObj(execute.body());
             System.out.println(jsonObject);
 
-            return true;
-        }catch (Exception e)
-        {
-            e.printStackTrace();
-            return false;
-        }
+            return execute.getStatus();
 
     }
 
