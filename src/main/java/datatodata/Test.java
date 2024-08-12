@@ -264,8 +264,13 @@ public class Test {
                             smsText = "尊敬的读者，您于 " + loanDate + " 所借书刊 " + subOverBookList.get(0).getTitle() + " 将于 "
                                     + returnTime + " 到期，请及时归还。咨询电话：22808600,如果书已归还，请忽略些短信";
                             System.out.println("发送短信：" + smsText);
-							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", subOverBookList.get(0).getName(),subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
+							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "读者",subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
 							System.out.println("发送模板消息："+check);
+							if(check == 200)
+                            {
+                                WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "读者",subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
+                            }
+
                             ps3.setString(1, openid);
                             ps3.setString(2, subOverBookList.get(0).getCardNo());
                             ps3.setString(3, loanDate);
@@ -288,8 +293,14 @@ public class Test {
                                 titleString = subOverBookString;
                             }
 
-							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4",subOverBookList.get(0).getName(), subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
-							System.out.println("发送模板消息："+check);
+							int check = WXUtils.sendTemplateMessage(openid, "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4","读者", subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle()+"等"+subOverBookList.size()+"本书", returnTime);
+                            if(check == 200)
+                            {
+                                WXUtils.sendTemplateMessage("oa7HK5-kxBFgpyDM9s2iizpuS8PQ", "XVxZjetXFR8C_Is8-N3TwxNjoamFByg0MnxXYCanKv4", "读者",subOverBookList.get(0).getCardNo(), subOverBookList.get(0).getTitle(), returnTime);
+                            }
+
+
+                            System.out.println("发送模板消息："+check);
                             ps3.setString(1, openid);
                             ps3.setString(2, subOverBookList.get(0).getCardNo());
                             ps3.setString(3, loanDate);

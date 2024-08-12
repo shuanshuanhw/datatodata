@@ -69,6 +69,9 @@ public class WXUtils {
 //            System.out.println(execute);
             System.out.println("发送状态："+execute.getStatus());
             JSONObject jsonObject = JSONUtil.parseObj(execute.body());
+
+            // {"errcode":47003,"errmsg":"argument invalid! data.thing2.value invalid rid: 66b9c93e-3785c33e-13ceb311"}
+        // 可能会因为文献名的错误,导致了没发送成功
             System.out.println(jsonObject);
 
             return execute.getStatus();
